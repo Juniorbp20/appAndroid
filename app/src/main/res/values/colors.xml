@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_color">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="success_color">#4CAF50</color>
+    <color name="warning_color">#FF9800</color>
+    <color name="error_color">#F44336</color>
+    <color name="info_color">#00BCD4</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray">#757575</color>
+    <color name="gray_light">#CFD8DC</color>
+    <color name="gray_dark">#37474F</color>
+    <color name="background_light">#F5F7FB</color>
+    <color name="background_card">#FFFFFF</color>
+
+    <color name="dashboard_card_income">#2E7D32</color>
+    <color name="dashboard_card_income_stroke">#4CAF50</color>
+    <color name="dashboard_card_secondary">#1E88E5</color>
+    <color name="dashboard_card_orders">#1976D2</color>
+    <color name="dashboard_card_clients">#6A1B9A</color>
+    <color name="dashboard_accent_positive">#388E3C</color>
+    <color name="dashboard_accent_negative">#D32F2F</color>
+
+    <color name="ic_launcher_background">#AC0903</color>
+    <color name="dashboard_card_overdue">#F44336</color>
+    <color name="dashboard_card_earnings">#4CAF50</color>
+</resources>
