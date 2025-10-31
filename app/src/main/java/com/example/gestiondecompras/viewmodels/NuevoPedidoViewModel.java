@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.room.Room;
 
 import com.example.gestiondecompras.database.AppDatabase;
 import com.example.gestiondecompras.models.Cliente;
@@ -14,12 +13,24 @@ import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.models.Tarjeta;
 import com.example.gestiondecompras.models.Tienda;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class NuevoPedidoViewModel extends AndroidViewModel {
 
     private final AppDatabase db;
     private final ExecutorService executorService;
+    private static final List<String> DEFAULT_TIENDAS = Arrays.asList(
+            "Temu",
+            "Shein",
+            "Amazon",
+            "Ebay",
+            "AliExpress",
+            "Alibaba"
+    );
 
     private final MutableLiveData<List<Cliente>> clientes = new MutableLiveData<>();
     private final MutableLiveData<List<Tienda>> tiendas = new MutableLiveData<>();
@@ -27,7 +38,7 @@ public class NuevoPedidoViewModel extends AndroidViewModel {
 
     public NuevoPedidoViewModel(@NonNull Application application) {
         super(application);
-        db = Room.databaseBuilder(application, AppDatabase.class, "GestionCompras.db").build();
+        db = AppDatabase.getInstance(application);
         executorService = Executors.newSingleThreadExecutor();
         loadInitialData();
     }
@@ -47,7 +58,18 @@ public class NuevoPedidoViewModel extends AndroidViewModel {
     public void loadInitialData() {
         executorService.execute(() -> {
             clientes.postValue(db.clienteDao().getAllClientes());
-            tiendas.postValue(db.tiendaDao().getAllTiendas());
+
+            List<Tienda> tiendasActuales = new ArrayList<>(db.tiendaDao().getAllTiendas());
+            if (tiendasActuales.isEmpty()) {
+                for (String nombre : DEFAULT_TIENDAS) {
+                    Tienda tienda = new Tienda();
+                    tienda.setNombre(nombre);
+                    db.tiendaDao().insert(tienda);
+                }
+                tiendasActuales = db.tiendaDao().getAllTiendas();
+            }
+            tiendas.postValue(tiendasActuales);
+
             tarjetas.postValue(db.tarjetaDao().getAllTarjetas());
         });
     }
@@ -57,7 +79,7 @@ public class NuevoPedidoViewModel extends AndroidViewModel {
             long pedidoId = db.pedidoDao().insert(pedido);
             pedido.id = pedidoId;
 
-            tarjeta.deudaActual += pedido.montoCompra;
+            tarjeta.setDeudaActual(tarjeta.getDeudaActual() + pedido.getMontoCompra());
             db.tarjetaDao().update(tarjeta);
         });
     }

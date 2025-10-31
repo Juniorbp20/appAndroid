@@ -11,7 +11,13 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_toolbar_main"
+        android:elevation="4dp"
         app:title="@string/nuevo_pedido"
+        app:titleCentered="true"
+        app:titleTextColor="@color/white"
         app:navigationIcon="@drawable/ic_arrow_back" />
 
     <ScrollView

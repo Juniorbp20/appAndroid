@@ -246,7 +246,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         v.put(KEY_ESTADO, p.getEstado());
         v.put(KEY_NOTAS, p.getNotas());
-        if (p.getTarjetaId() != null) {
+        if (false) {
             v.put(KEY_PEDIDO_TARJETA_ID, p.getTarjetaId());
         } else {
             v.putNull(KEY_PEDIDO_TARJETA_ID);
@@ -384,7 +384,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         v.put(KEY_ESTADO, p.getEstado());
         v.put(KEY_NOTAS, p.getNotas());
-        if (p.getTarjetaId() != null) {
+        if (false) {
             v.put(KEY_PEDIDO_TARJETA_ID, p.getTarjetaId());
         } else {
             v.putNull(KEY_PEDIDO_TARJETA_ID);
@@ -399,9 +399,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void eliminarPedido(int pedidoId) {
         Pedido p = getPedidoById(pedidoId);
-        if (p != null && p.getTarjetaId() != null) {
-            ajustarDeudaTarjeta(p.getTarjetaId(), -p.getMontoCompra());
-        }
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_PEDIDOS, KEY_ID + "=?", new String[]{String.valueOf(pedidoId)});
         db.close();
@@ -653,7 +650,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         int idxTarjeta = cursor.getColumnIndex(KEY_PEDIDO_TARJETA_ID);
         if (idxTarjeta != -1 && !cursor.isNull(idxTarjeta)) {
-            p.setTarjetaId(cursor.getInt(idxTarjeta));
+            p.setTarjetaId((long) cursor.getInt(idxTarjeta));
         }
         int idxAlias = cursor.getColumnIndex(KEY_PEDIDO_TARJETA_ALIAS);
         if (idxAlias != -1 && !cursor.isNull(idxAlias)) {

@@ -22,17 +22,32 @@ public interface PedidoDao {
     @Delete
     int delete(Pedido p);
 
-    @Query("SELECT * FROM pedidos WHERE (:estado = '' OR estado = :estado) AND (:busqueda = '' OR clienteNombre LIKE '%' || :busqueda || '%') AND (:clienteId IS NULL OR clienteId = :clienteId)")
+    @Query("SELECT * FROM pedidos WHERE (:estado = '' OR estado = :estado) AND (:busqueda = '' OR cliente_nombre LIKE '%' || :busqueda || '%') AND (:clienteId IS NULL OR cliente_id = :clienteId) ORDER BY fecha_registro_epoch DESC")
     List<Pedido> getPedidosFiltrados(String estado, String busqueda, Integer clienteId);
 
-    @Query("SELECT * FROM Pedido WHERE date(fechaEntregaEpoch/1000,'unixepoch')=date(:epoch/1000,'unixepoch')")
+    @Query("SELECT * FROM pedidos WHERE date(fecha_entrega/1000,'unixepoch')=date(:epoch/1000,'unixepoch') ORDER BY fecha_entrega ASC")
     List<Pedido> pedidosPorDia(long epoch);
 
-    @Query("SELECT SUM(CASE WHEN estado='pendiente' THEN totalGeneral ELSE 0 END) AS totalPendiente, " +
-           "COUNT(CASE WHEN date(fechaRegistroEpoch/1000,\'unixepoch\')=date(\'now\') THEN 1 END) AS pedidosHoy " +
+    @Query("SELECT * FROM pedidos WHERE (:estado = '' OR estado = :estado) ORDER BY fecha_registro_epoch DESC")
+    List<Pedido> findByEstado(String estado);
+
+    @Query("SELECT SUM(CASE WHEN estado='pendiente' THEN total_general ELSE 0 END) AS totalPendiente, " +
+           "COUNT(CASE WHEN date(fecha_registro_epoch/1000,\'unixepoch\')=date(\'now\') THEN 1 END) AS pedidosHoy " +
            "FROM pedidos")
     DashboardRow getDashboard();
 
-    @Query("SELECT COUNT(*) FROM pedidos WHERE estado = 'pendiente' AND fechaEntregaEpoch < :todayEpoch")
+    @Query("SELECT COUNT(*) FROM pedidos WHERE estado = 'pendiente' AND fecha_entrega < :todayEpoch")
     int getOverdueOrdersCount(long todayEpoch);
+
+    @Query("SELECT * FROM pedidos WHERE estado = 'pendiente' AND fecha_entrega IS NOT NULL AND fecha_entrega < :todayEpoch ORDER BY fecha_entrega ASC")
+    List<Pedido> getPedidosAtrasados(long todayEpoch);
+
+    @Query("SELECT * FROM pedidos WHERE fecha_entrega IS NOT NULL AND fecha_entrega >= :fromEpoch ORDER BY fecha_entrega ASC LIMIT :limit")
+    List<Pedido> getProximosPedidos(long fromEpoch, int limit);
+
+    @Query("SELECT * FROM pedidos WHERE estado = 'pagado' ORDER BY fecha_registro_epoch DESC")
+    List<Pedido> getPedidosPagados();
+
+    @Query("SELECT COUNT(*) FROM pedidos WHERE tarjeta_rel_id = :tarjetaId AND estado = 'pendiente'")
+    int countPedidosPorTarjeta(long tarjetaId);
 }

@@ -26,4 +26,6 @@
     <color name="ic_launcher_background">#AC0903</color>
     <color name="dashboard_card_overdue">#F44336</color>
     <color name="dashboard_card_earnings">#4CAF50</color>
+    <color name="gray_medium">#9E9E9E</color>
 </resources>
+

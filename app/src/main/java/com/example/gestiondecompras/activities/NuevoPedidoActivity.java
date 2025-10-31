@@ -1,7 +1,10 @@
 package com.example.gestiondecompras.activities;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -19,7 +22,6 @@ import com.example.gestiondecompras.models.Tienda;
 import com.example.gestiondecompras.viewmodels.NuevoPedidoViewModel;
 
 import java.util.Calendar;
-import java.util.List;
 
 public class NuevoPedidoActivity extends AppCompatActivity {
 
@@ -27,6 +29,11 @@ public class NuevoPedidoActivity extends AppCompatActivity {
     private NuevoPedidoViewModel viewModel;
     private Calendar fechaRegistro = Calendar.getInstance();
     private Calendar fechaEntrega = Calendar.getInstance();
+    private final TextWatcher totalWatcher = new TextWatcher() {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        @Override public void afterTextChanged(Editable s) { updateTotalGeneral(); }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,6 +47,8 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         setupSpinners();
         setupDatePickers();
         setupSaveButton();
+        setupInputWatchers();
+        updateTotalGeneral();
     }
 
     private void setupToolbar() {
@@ -96,47 +105,125 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         binding.btnGuardar.setOnClickListener(v -> savePedido());
     }
 
+    private void setupInputWatchers() {
+        if (!binding.rbGananciaFija.isChecked() && !binding.rbGananciaPorcentaje.isChecked()) {
+            binding.rbGananciaFija.setChecked(true);
+        }
+        binding.etMontoCompra.addTextChangedListener(totalWatcher);
+        binding.etGanancia.addTextChangedListener(totalWatcher);
+        binding.rgGanancia.setOnCheckedChangeListener((group, checkedId) -> updateTotalGeneral());
+    }
+
+    private void updateTotalGeneral() {
+        String montoTexto = binding.etMontoCompra.getText() != null
+                ? binding.etMontoCompra.getText().toString().trim() : "";
+        String gananciaTexto = binding.etGanancia.getText() != null
+                ? binding.etGanancia.getText().toString().trim() : "";
+
+        if (montoTexto.isEmpty() || gananciaTexto.isEmpty()) {
+            binding.tvTotalGeneral.setText(getString(R.string.total_general_amount, 0.0));
+            return;
+        }
+
+        try {
+            double monto = Double.parseDouble(montoTexto);
+            double ganancia = Double.parseDouble(gananciaTexto);
+            boolean isGananciaFija = binding.rbGananciaFija.isChecked();
+            double totalGanancia = isGananciaFija ? ganancia : monto * (ganancia / 100);
+            double totalGeneral = monto + totalGanancia;
+            binding.tvTotalGeneral.setText(getString(R.string.total_general_amount, totalGeneral));
+        } catch (NumberFormatException ex) {
+            binding.tvTotalGeneral.setText(getString(R.string.total_general_amount, 0.0));
+        }
+    }
+
     private void savePedido() {
-        // Get data from form
         Cliente cliente = (Cliente) binding.spinnerCliente.getSelectedItem();
         Tienda tienda = (Tienda) binding.spinnerTienda.getSelectedItem();
         Tarjeta tarjeta = (Tarjeta) binding.spinnerTarjeta.getSelectedItem();
-        double monto = Double.parseDouble(binding.etMontoCompra.getText().toString());
-        double ganancia = Double.parseDouble(binding.etGanancia.getText().toString());
-        boolean isGananciaFija = binding.rbGananciaFija.isChecked();
 
-        // Calculate profit
-        double totalGanancia;
-        if (isGananciaFija) {
-            totalGanancia = ganancia;
-        } else {
-            totalGanancia = monto * (ganancia / 100);
-        }
-
-        double totalGeneral = monto + totalGanancia;
-
-        // Validations
-        if (tarjeta.limite > 0 && (tarjeta.deudaActual + monto) > tarjeta.limite) {
-            Toast.makeText(this, "El monto de la compra supera el límite de la tarjeta", Toast.LENGTH_SHORT).show();
+        if (cliente == null || tienda == null || tarjeta == null) {
+            Toast.makeText(this, "Selecciona cliente, tienda y tarjeta.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String[] parts = tarjeta.fechaVencimiento.split("/");
-        int month = Integer.parseInt(parts[0]);
-        int year = Integer.parseInt(parts[1]) + 2000;
+        String montoTexto = binding.etMontoCompra.getText().toString().trim();
+        String gananciaTexto = binding.etGanancia.getText().toString().trim();
+        if (montoTexto.isEmpty() || gananciaTexto.isEmpty()) {
+            Toast.makeText(this, "Completa monto de compra y ganancia.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double monto;
+        double ganancia;
+        try {
+            monto = Double.parseDouble(montoTexto);
+            ganancia = Double.parseDouble(gananciaTexto);
+        } catch (NumberFormatException ex) {
+            Toast.makeText(this, "Verifica los valores numericos ingresados.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean isGananciaFija = binding.rbGananciaFija.isChecked();
+        double totalGanancia = isGananciaFija ? ganancia : monto * (ganancia / 100);
+        double totalGeneral = monto + totalGanancia;
+        binding.tvTotalGeneral.setText(getString(R.string.total_general_amount, totalGeneral));
+
+        if (tarjeta.getLimiteCredito() > 0 && (tarjeta.getDeudaActual() + monto) > tarjeta.getLimiteCredito()) {
+            Toast.makeText(this, "El monto de la compra supera el limite de la tarjeta.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String fechaVigencia = tarjeta.getFechaVencimiento();
+        if (fechaVigencia == null || fechaVigencia.trim().isEmpty()) {
+            Toast.makeText(this, "La tarjeta no tiene fecha de vencimiento.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String[] partes = fechaVigencia.split("[-/]");
+        if (partes.length != 2) {
+            Toast.makeText(this, "Formato de vencimiento invalido (usa MM-YY).", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int month;
+        int year;
+        try {
+            month = Integer.parseInt(partes[0]);
+            year = Integer.parseInt(partes[1]);
+        } catch (NumberFormatException ex) {
+            Toast.makeText(this, "Formato de vencimiento invalido (usa MM-YY).", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (month < 1 || month > 12) {
+            Toast.makeText(this, "Mes de vencimiento fuera de rango.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (year < 100) {
+            year += 2000;
+        }
+
         Calendar expiryDate = Calendar.getInstance();
         expiryDate.set(Calendar.YEAR, year);
-        expiryDate.set(Calendar.MONTH, month);
+        expiryDate.set(Calendar.MONTH, month - 1);
+        expiryDate.set(Calendar.DAY_OF_MONTH, expiryDate.getActualMaximum(Calendar.DAY_OF_MONTH));
+        expiryDate.set(Calendar.HOUR_OF_DAY, 23);
+        expiryDate.set(Calendar.MINUTE, 59);
+        expiryDate.set(Calendar.SECOND, 59);
+        expiryDate.set(Calendar.MILLISECOND, 999);
         if (expiryDate.before(Calendar.getInstance())) {
-            Toast.makeText(this, "La tarjeta está vencida", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "La tarjeta esta vencida.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create Pedido object
         Pedido pedido = new Pedido();
         pedido.clienteId = cliente.id;
+        pedido.setClienteNombre(cliente.getNombre());
         pedido.tiendaId = tienda.id;
+        pedido.setTienda(tienda.getNombre());
         pedido.tarjetaId = tarjeta.id;
+        pedido.setTarjetaAlias(tarjeta.getAlias());
         pedido.montoCompra = monto;
         pedido.ganancia = totalGanancia;
         pedido.totalGeneral = totalGeneral;
@@ -145,9 +232,7 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         pedido.notas = binding.etNotas.getText().toString();
         pedido.estado = Pedido.ESTADO_PENDIENTE;
 
-        // Save pedido
         viewModel.savePedido(pedido, tarjeta);
-
         Toast.makeText(this, "Pedido guardado", Toast.LENGTH_SHORT).show();
         finish();
     }

@@ -91,6 +91,15 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <TextView
+            android:id="@+id/tvSwipeHints"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/pedidos_swipe_hint"
+            android:textColor="@color/gray_medium"
+            android:textSize="12sp" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPedidos"
             android:layout_width="match_parent"
@@ -131,3 +140,4 @@
         app:icon="@drawable/ic_add_circle" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+

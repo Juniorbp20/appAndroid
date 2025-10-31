@@ -1,31 +1,23 @@
 package com.example.gestiondecompras.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.BaseAdapter;
-import android.widget.CalendarView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.adapters.PedidosAdapter;
 import com.example.gestiondecompras.databinding.ActivityCalendarioBinding;
-import com.example.gestiondecompras.models.Pedido;
-import com.example.gestiondecompras.database.DatabaseHelper;
 import com.example.gestiondecompras.viewmodels.CalendarioViewModel;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
-public class CalendarioActivity extends AppCompatActivity implements PedidosAdapter.OnPedidoClickListener {
+public class CalendarioActivity extends AppCompatActivity {
 
     private ActivityCalendarioBinding binding;
     private CalendarioViewModel viewModel;
@@ -42,7 +34,9 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
         viewModel = new ViewModelProvider(this).get(CalendarioViewModel.class);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         setupCalendar();
@@ -65,7 +59,7 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
 
     private void setupRecyclerView() {
         binding.rvPedidosDelDia.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PedidosAdapter(this);
+        adapter = new PedidosAdapter(null);
         binding.rvPedidosDelDia.setAdapter(adapter);
     }
 
@@ -75,19 +69,11 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
             if (pedidos != null) {
                 adapter.actualizarLista(pedidos);
                 binding.tvCantidadPedidos.setText("(" + pedidos.size() + " pedidos)");
+            } else {
+                adapter.actualizarLista(Collections.emptyList());
+                binding.tvCantidadPedidos.setText("(0 pedidos)");
             }
         });
     }
-
-    @Override
-    public void onPedidoClick(Pedido pedido) {
-        Intent i = new Intent(this, NuevoPedidoActivity.class);
-        i.putExtra("pedido_id", pedido.id);
-        startActivity(i);
-    }
-
-    @Override
-    public void onPedidoLongClick(Pedido pedido) {
-        onPedidoClick(pedido);
-    }
 }
+

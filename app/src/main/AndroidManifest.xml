@@ -11,6 +11,8 @@
         android:theme="@style/Theme.Material3.DayNight.NoActionBar">
 
 
+        <activity android:name="com.example.gestiondecompras.activities.SettingsActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.CalendarioActivity" />
         <activity android:name="com.example.gestiondecompras.activities.TarjetasActivity" />
         <activity android:name="com.example.gestiondecompras.activities.ListaPedidosActivity" />
         <activity android:name="com.example.gestiondecompras.activities.NuevoPedidoActivity" />

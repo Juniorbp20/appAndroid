@@ -126,7 +126,7 @@ public final class ActivityMainBinding implements ViewBinding {
             throw new NullPointerException("Missing required view with ID: ".concat(rootView.getResources().getResourceName(id)));
         }
 
-        id = R.id.tvTotalGeneral;
+        id = R.id.tv_total_general;
         EditText tvTotalPendiente = ViewBindings.findChildViewById(rootView, id);
         if (tvTotalPendiente == null) {
             throw new NullPointerException("Missing required view with ID: ".concat(rootView.getResources().getResourceName(id)));

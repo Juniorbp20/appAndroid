@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.room.Room;
 
 import com.example.gestiondecompras.database.AppDatabase;
 import com.example.gestiondecompras.models.Tarjeta;
@@ -21,10 +20,11 @@ public class ListaTarjetasViewModel extends AndroidViewModel {
     private final ExecutorService executorService;
 
     private final MutableLiveData<List<Tarjeta>> tarjetas = new MutableLiveData<>();
+    private final MutableLiveData<String> mensajes = new MutableLiveData<>();
 
     public ListaTarjetasViewModel(@NonNull Application application) {
         super(application);
-        db = Room.databaseBuilder(application, AppDatabase.class, "GestionCompras.db").build();
+        db = AppDatabase.getInstance(application);
         executorService = Executors.newSingleThreadExecutor();
     }
 
@@ -32,16 +32,24 @@ public class ListaTarjetasViewModel extends AndroidViewModel {
         return tarjetas;
     }
 
+    public LiveData<String> getMensajes() {
+        return mensajes;
+    }
+
     public void loadTarjetas() {
-        executorService.execute(() -> {
-            tarjetas.postValue(db.tarjetaDao().getAllTarjetas());
-        });
+        executorService.execute(() -> tarjetas.postValue(db.tarjetaDao().getAllTarjetas()));
     }
 
     public void deleteTarjeta(Tarjeta tarjeta) {
         executorService.execute(() -> {
-            db.tarjetaDao().delete(tarjeta);
-            loadTarjetas();
+            int enlaces = db.pedidoDao().countPedidosPorTarjeta(tarjeta.id);
+            if (enlaces > 0) {
+                mensajes.postValue("tarjeta_en_uso");
+            } else {
+                db.tarjetaDao().delete(tarjeta);
+                mensajes.postValue("tarjeta_eliminada");
+                loadTarjetas();
+            }
         });
     }
 

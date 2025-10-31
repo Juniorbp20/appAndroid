@@ -2,52 +2,39 @@ package com.example.gestiondecompras.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.adapters.PedidosAdapter;
-import com.example.gestiondecompras.database.DatabaseHelper;
 import com.example.gestiondecompras.databinding.ActivityMainBinding;
-import com.example.gestiondecompras.models.Cliente;
 import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.viewmodels.DashboardViewModel;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private DashboardViewModel viewModel;
+    private PedidosAdapter proximosAdapter;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         viewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
 
         updateGreeting();
+        setupUpcomingList();
         setupClickListeners();
         observeViewModel();
     }
@@ -64,6 +51,14 @@ public class MainActivity extends AppCompatActivity {
             greetingRes = R.string.dashboard_greeting_evening;
         }
         binding.tvGreeting.setText(getString(greetingRes));
+    }
+
+    private void setupUpcomingList() {
+        proximosAdapter = new PedidosAdapter(null);
+        binding.rvProximosPedidos.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvProximosPedidos.setAdapter(proximosAdapter);
+        binding.rvProximosPedidos.setClickable(false);
+        binding.rvProximosPedidos.setFocusable(false);
     }
 
     private void setupClickListeners() {
@@ -91,14 +86,11 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getDashboardData().observe(this, dashboardRow -> {
             if (dashboardRow != null) {
                 binding.tvTotalPendiente.setText(String.format("RD$ %,.2f", dashboardRow.totalPendiente));
-                binding.tvPedidosHoy.setText(String.valueOf(dashboardRow.pedidosHoy));
             }
         });
 
         viewModel.getActiveClientsCount().observe(this, count -> {
-            if (count != null) {
-                binding.tvClientesActivos.setText(String.valueOf(count));
-            }
+            // Mantener label est�tico en esta tarjeta.
         });
 
         viewModel.getOverdueOrdersCount().observe(this, count -> {
@@ -110,6 +102,17 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getProjectedEarnings().observe(this, earnings -> {
             if (earnings != null) {
                 binding.tvGananciaEsperadaCard.setText(String.format("RD$ %,.2f", earnings));
+            }
+        });
+
+        viewModel.getUpcomingOrders().observe(this, pedidos -> {
+            if (pedidos != null && !pedidos.isEmpty()) {
+                binding.emptyState.setVisibility(View.GONE);
+                binding.rvProximosPedidos.setVisibility(View.VISIBLE);
+                proximosAdapter.actualizarLista(pedidos);
+            } else {
+                binding.rvProximosPedidos.setVisibility(View.GONE);
+                binding.emptyState.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -128,4 +131,14 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.loadDashboardData();
+    }
 }
+
+
+
+
