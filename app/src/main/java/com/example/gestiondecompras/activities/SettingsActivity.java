@@ -7,6 +7,11 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import com.example.gestiondecompras.databinding.ActivitySettingsBinding;
+import com.example.gestiondecompras.workers.NotificationWorker;
 
 import java.util.concurrent.TimeUnit;
 

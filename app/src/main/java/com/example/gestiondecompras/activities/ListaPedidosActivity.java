@@ -1,17 +1,15 @@
 package com.example.gestiondecompras.activities;
 
 import android.content.Intent;
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,15 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.adapters.PedidosAdapter;
-import com.example.gestiondecompras.database.DatabaseHelper;
 import com.example.gestiondecompras.databinding.ActivityListaPedidosBinding;
-import com.example.gestiondecompras.models.Cliente;
 import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.viewmodels.ListaPedidosViewModel;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ListaPedidosActivity extends AppCompatActivity implements PedidosAdapter.OnPedidoClickListener {
 
@@ -80,7 +73,7 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         adapter = new PedidosAdapter(this);
         binding.rvPedidos.setAdapter(adapter);
 
-        ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
+        ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -90,13 +83,7 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getBindingAdapterPosition();
                 Pedido pedido = adapter.getPedidoAt(position);
-
-                if (direction == ItemTouchHelper.RIGHT) {
-                    String nuevoEstado = obtenerSiguienteEstado(pedido.estado);
-                    pedido.estado = nuevoEstado;
-                    viewModel.updatePedido(pedido);
-                    Snackbar.make(binding.rvPedidos, getString(R.string.pedidos_estado_actualizado, nuevoEstado), Snackbar.LENGTH_SHORT).show();
-                } else if (direction == ItemTouchHelper.LEFT) {
+                if (direction == ItemTouchHelper.LEFT && pedido != null) {
                     confirmarEliminarPedido(pedido, position);
                 }
             }
@@ -154,7 +141,17 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
 
     @Override
     public void onPedidoLongClick(Pedido pedido) {
-        onPedidoClick(pedido);
+        if (pedido != null) {
+            mostrarDialogoEstado(pedido);
+        }
+    }
+
+    private void actualizarTitulo() {
+        if (filtroClienteNombre != null) {
+            binding.toolbar.setTitle(getString(R.string.pedidos_title_cliente, filtroClienteNombre));
+        } else {
+            binding.toolbar.setTitle(R.string.pedidos_title);
+        }
     }
 
     private void confirmarEliminarPedido(Pedido pedido, int position) {
@@ -170,19 +167,33 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
                 .show();
     }
 
-    private void actualizarTitulo() {
-        if (filtroClienteNombre != null) {
-            binding.toolbar.setTitle(getString(R.string.pedidos_title_cliente, filtroClienteNombre));
-        } else {
-            binding.toolbar.setTitle(R.string.pedidos_title);
+    private void mostrarDialogoEstado(Pedido pedido) {
+        final String[] valores = {
+                Pedido.ESTADO_PENDIENTE,
+                Pedido.ESTADO_ENTREGADO,
+                Pedido.ESTADO_PAGADO,
+                Pedido.ESTADO_CANCELADO
+        };
+        final String[] labels = getResources().getStringArray(R.array.pedido_estados_labels);
+        int seleccionado = 0;
+        for (int i = 0; i < valores.length; i++) {
+            if (valores[i].equalsIgnoreCase(pedido.estado)) {
+                seleccionado = i;
+                break;
+            }
         }
-    }
 
-    private String obtenerSiguienteEstado(String estadoActual) {
-        if (Pedido.ESTADO_PENDIENTE.equals(estadoActual)) return Pedido.ESTADO_ENTREGADO;
-        if (Pedido.ESTADO_ENTREGADO.equals(estadoActual)) return Pedido.ESTADO_PAGADO;
-        if (Pedido.ESTADO_PAGADO.equals(estadoActual)) return Pedido.ESTADO_PENDIENTE;
-        if (Pedido.ESTADO_CANCELADO.equals(estadoActual)) return Pedido.ESTADO_PENDIENTE;
-        return Pedido.ESTADO_PENDIENTE;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_change_estado_title)
+                .setSingleChoiceItems(labels, seleccionado, (dialog, which) -> {
+                    pedido.estado = valores[which];
+                    viewModel.updatePedido(pedido);
+                    Snackbar.make(binding.rvPedidos, getString(R.string.pedidos_estado_actualizado, labels[which]), Snackbar.LENGTH_SHORT).show();
+                    adapter.notifyDataSetChanged();
+                    dialog.dismiss();
+                })
+                .setNegativeButton(R.string.accion_cancelar, null)
+                .show();
     }
 }
+

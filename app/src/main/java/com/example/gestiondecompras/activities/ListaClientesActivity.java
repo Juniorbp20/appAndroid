@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.models.Cliente;
 import com.example.gestiondecompras.adapters.ClientesAdapter;
-import com.example.gestiondecompras.database.DatabaseHelper;
 import com.example.gestiondecompras.databinding.ActivityListaClientesBinding;
 import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.viewmodels.ListaClientesViewModel;

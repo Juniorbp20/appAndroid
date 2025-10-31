@@ -8,14 +8,15 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.gestiondecompras.R;
 
 import com.example.gestiondecompras.adapters.TarjetasAdapter;
-import com.example.gestiondecompras.database.DatabaseHelper;
 import com.example.gestiondecompras.databinding.ActivityTarjetasBinding;
 import com.example.gestiondecompras.models.Tarjeta;
+import com.example.gestiondecompras.viewmodels.ListaTarjetasViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,16 @@ public class TarjetasActivity extends AppCompatActivity implements TarjetasAdapt
                 binding.tvEmpty.setVisibility(tarjetas.isEmpty() ? View.VISIBLE : View.GONE);
             }
         });
+        viewModel.getMensajes().observe(this, mensaje -> {
+            if (mensaje == null) {
+                return;
+            }
+            if ("tarjeta_en_uso".equals(mensaje)) {
+                Toast.makeText(this, R.string.dialog_tarjeta_en_uso, Toast.LENGTH_SHORT).show();
+            } else if ("tarjeta_eliminada".equals(mensaje)) {
+                Toast.makeText(this, R.string.toast_tarjeta_eliminada, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -81,6 +92,7 @@ public class TarjetasActivity extends AppCompatActivity implements TarjetasAdapt
 
     private void mostrarOpcionesTarjeta(Tarjeta tarjeta) {
         CharSequence[] opciones = {
+                getString(R.string.accion_editar_tarjeta),
                 getString(R.string.dialog_pago_tarjeta_title),
                 getString(R.string.dialog_delete_tarjeta_title)
         };
@@ -89,8 +101,10 @@ public class TarjetasActivity extends AppCompatActivity implements TarjetasAdapt
                 .setTitle(tarjeta.alias != null && !tarjeta.alias.isEmpty() ? tarjeta.alias : tarjeta.banco)
                 .setItems(opciones, (dialog, which) -> {
                     if (which == 0) {
-                        mostrarDialogoPago(tarjeta);
+                        editarTarjeta(tarjeta);
                     } else if (which == 1) {
+                        mostrarDialogoPago(tarjeta);
+                    } else if (which == 2) {
                         confirmarEliminarTarjeta(tarjeta);
                     }
                 })
@@ -117,7 +131,16 @@ public class TarjetasActivity extends AppCompatActivity implements TarjetasAdapt
                 if (pago <= 0) {
                     throw new NumberFormatException();
                 }
-                tarjeta.deudaActual -= pago;
+                if (pago > tarjeta.getDeudaActual()) {
+                    Toast.makeText(this, R.string.dialog_pago_tarjeta_excede_deuda, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                double nuevaDeuda = tarjeta.getDeudaActual() - pago;
+                if (nuevaDeuda < 0) {
+                    Toast.makeText(this, R.string.dialog_pago_tarjeta_excede_deuda, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                tarjeta.setDeudaActual(nuevaDeuda);
                 viewModel.updateTarjeta(tarjeta);
                 Toast.makeText(this, R.string.toast_tarjeta_pagada, Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
@@ -137,4 +160,18 @@ public class TarjetasActivity extends AppCompatActivity implements TarjetasAdapt
                 .setNegativeButton(R.string.accion_cancelar, null)
                 .show();
     }
+
+    private void editarTarjeta(Tarjeta tarjeta) {
+        Intent intent = new Intent(this, NuevaTarjetaActivity.class);
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_ID, tarjeta.getId());
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_BANCO, tarjeta.getBanco());
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_ALIAS, tarjeta.getAlias());
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_LIMITE, tarjeta.getLimiteCredito());
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_DIA_CORTE, tarjeta.getDiaCorte());
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_VENCIMIENTO, tarjeta.getFechaVencimiento());
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_NOTAS, tarjeta.getNotas());
+        intent.putExtra(NuevaTarjetaActivity.EXTRA_TARJETA_DEUDA, tarjeta.getDeudaActual());
+        startActivity(intent);
+    }
 }
+

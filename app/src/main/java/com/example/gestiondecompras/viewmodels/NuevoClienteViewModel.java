@@ -4,7 +4,6 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.room.Room;
 
 import com.example.gestiondecompras.database.AppDatabase;
 import com.example.gestiondecompras.models.Cliente;
@@ -19,7 +18,7 @@ public class NuevoClienteViewModel extends AndroidViewModel {
 
     public NuevoClienteViewModel(@NonNull Application application) {
         super(application);
-        db = Room.databaseBuilder(application, AppDatabase.class, "GestionCompras.db").build();
+        db = AppDatabase.getInstance(application);
         executorService = Executors.newSingleThreadExecutor();
     }
 

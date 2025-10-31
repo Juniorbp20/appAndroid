@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.room.Room;
 
 import com.example.gestiondecompras.database.AppDatabase;
 import com.example.gestiondecompras.models.Cliente;
@@ -24,7 +23,7 @@ public class ListaClientesViewModel extends AndroidViewModel {
 
     public ListaClientesViewModel(@NonNull Application application) {
         super(application);
-        db = Room.databaseBuilder(application, AppDatabase.class, "GestionCompras.db").build();
+        db = AppDatabase.getInstance(application);
         executorService = Executors.newSingleThreadExecutor();
     }
 

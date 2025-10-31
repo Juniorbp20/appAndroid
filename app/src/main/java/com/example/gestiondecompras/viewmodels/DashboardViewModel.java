@@ -6,11 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.room.Room;
 
 import com.example.gestiondecompras.database.AppDatabase;
 import com.example.gestiondecompras.models.DashboardRow;
+import com.example.gestiondecompras.models.Pedido;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,10 +24,11 @@ public class DashboardViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> activeClientsCount = new MutableLiveData<>();
     private final MutableLiveData<Integer> overdueOrdersCount = new MutableLiveData<>();
     private final MutableLiveData<Double> projectedEarnings = new MutableLiveData<>();
+    private final MutableLiveData<java.util.List<Pedido>> upcomingOrders = new MutableLiveData<>();
 
     public DashboardViewModel(@NonNull Application application) {
         super(application);
-        db = Room.databaseBuilder(application, AppDatabase.class, "GestionCompras.db").build();
+        db = AppDatabase.getInstance(application);
         executorService = Executors.newSingleThreadExecutor();
         loadDashboardData();
     }
@@ -53,6 +55,12 @@ public class DashboardViewModel extends AndroidViewModel {
 
             int overdue = db.pedidoDao().getOverdueOrdersCount(System.currentTimeMillis());
             overdueOrdersCount.postValue(overdue);
+
+            Double earnings = db.reporteDao().gananciaProyectada();
+            projectedEarnings.postValue(earnings != null ? earnings : 0d);
+
+            java.util.List<Pedido> proximos = db.pedidoDao().getProximosPedidos(System.currentTimeMillis(), 5);
+            upcomingOrders.postValue(proximos != null ? proximos : Collections.emptyList());
         });
     }
 
@@ -62,7 +70,11 @@ public class DashboardViewModel extends AndroidViewModel {
         executorService.shutdown();
     }
 
-    public LiveData<Object> getProjectedEarnings() {
-        return null;
+    public LiveData<Double> getProjectedEarnings() {
+        return projectedEarnings;
+    }
+
+    public LiveData<java.util.List<Pedido>> getUpcomingOrders() {
+        return upcomingOrders;
     }
 }

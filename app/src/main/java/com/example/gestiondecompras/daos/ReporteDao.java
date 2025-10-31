@@ -5,13 +5,13 @@ import androidx.room.Query;
 
 @Dao
 public interface ReporteDao {
-    @Query("SELECT SUM(totalGeneral) FROM pedidos WHERE estado='pagado'")
+    @Query("SELECT SUM(total_general) FROM pedidos WHERE estado='pagado'")
     Double totalCobrado();
 
-    @Query("SELECT SUM(totalGeneral) FROM pedidos WHERE estado='pendiente'")
+    @Query("SELECT SUM(total_general) FROM pedidos WHERE estado='pendiente'")
     Double totalPendiente();
 
-    @Query("SELECT SUM(montoCompra) FROM pedidos")
+    @Query("SELECT SUM(monto_compra) FROM pedidos")
     Double ventasGeneradas();
 
     @Query("SELECT SUM(ganancia) FROM pedidos")
