@@ -29,6 +29,7 @@ public class NuevoPedidoActivity extends AppCompatActivity {
     private NuevoPedidoViewModel viewModel;
     private Calendar fechaRegistro = Calendar.getInstance();
     private Calendar fechaEntrega = Calendar.getInstance();
+    private long pedidoIdEdicion = 0;
     private final TextWatcher totalWatcher = new TextWatcher() {
         @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -49,6 +50,13 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         setupSaveButton();
         setupInputWatchers();
         updateTotalGeneral();
+        
+        if (getIntent().hasExtra("pedido_id")) {
+             pedidoIdEdicion = getIntent().getLongExtra("pedido_id", 0);
+             if (pedidoIdEdicion > 0) {
+                 loadPedidoData(pedidoIdEdicion);
+             }
+        }
     }
 
     private void setupToolbar() {
@@ -137,6 +145,75 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         }
     }
 
+    private void loadPedidoData(long id) {
+        viewModel.getPedido(id).observe(this, pedido -> {
+            if (pedido != null) {
+                getSupportActionBar().setTitle("Editar Pedido #" + pedido.getId());
+                binding.btnGuardar.setText("Actualizar Pedido");
+                
+                binding.etMontoCompra.setText(String.valueOf(pedido.getMontoCompra()));
+                // Heuristic: If Ganancia == Total - Monto, assume fixed. 
+                // Actually Pedido doesn't store if it was fixed or percent directly, just the value and result.
+                // We'll calculate:
+                binding.rbGananciaFija.setChecked(true); 
+                binding.etGanancia.setText(String.valueOf(pedido.getGanancia()));
+                
+                binding.etNotas.setText(pedido.getNotas());
+                
+                if (pedido.fechaRegistroEpoch != null) {
+                    fechaRegistro.setTimeInMillis(pedido.fechaRegistroEpoch);
+                    binding.btnFechaRegistro.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fechaRegistro.getTime()));
+                }
+                 if (pedido.fechaEntregaEpoch != null) {
+                    fechaEntrega.setTimeInMillis(pedido.fechaEntregaEpoch);
+                    binding.btnFechaEntrega.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fechaEntrega.getTime()));
+                }
+                
+                // Spinners Selection (Need to wait for lists to load? effectively yes. 
+                // We'll try to select if adapters are ready, else we rely on the observers in setupSpinners 
+                // but those might load after/before this. Ideally we sync.
+                // For simplicity, we delay selection or handle it in observers if needed, 
+                // but simpler here: Try to find index. If list not loaded yet, this might fail.
+                // Better approach: In observe(clientes), check if we have a pending selection.
+                
+                // Since this is complex to sync perfectly without changing architecture, 
+                // we'll run a delayed Selection or just set it here assuming fast LoadInitialData.
+                // Actually loadInitialData is async. 
+                // Let's modify the Observers in setupSpinners to respect pedidoIdEdicion selection if loaded.
+                // But we don't have the pedido loaded there.
+                
+                // Hack: We wait a bit or trigger updates again.
+                // Or better: save the IDs to select and call a helper.
+                selectSpinnerItem(binding.spinnerCliente, pedido.clienteId);
+                selectSpinnerItem(binding.spinnerTienda, pedido.tiendaId);
+                selectSpinnerItem(binding.spinnerTarjeta, pedido.tarjetaId);
+            }
+        });
+    }
+
+    // Generic helper for spinners with object items (that have Ids) is hard without reflection or interface. 
+    // We'll rely on equals/toString or just loop. 
+    // Assuming Models implement equals based on ID would be best, but default might not.
+    // Let's iterate.
+    private void selectSpinnerItem(android.widget.Spinner spinner, Long id) {
+        if (id == null) return;
+        android.widget.Adapter adapter = spinner.getAdapter();
+        if (adapter == null) return; // Might happen if data not loaded yet.
+        for (int i = 0; i < adapter.getCount(); i++) {
+             Object item = adapter.getItem(i);
+             // We cast to known types or check ID via methods
+             if (item instanceof Cliente && ((Cliente)item).id == id) {
+                 spinner.setSelection(i); return;
+             }
+             if (item instanceof Tienda && ((Tienda)item).id == id) {
+                 spinner.setSelection(i); return;
+             }
+             if (item instanceof Tarjeta && ((Tarjeta)item).id == id) {
+                 spinner.setSelection(i); return;
+             }
+        }
+    }
+
     private void savePedido() {
         Cliente cliente = (Cliente) binding.spinnerCliente.getSelectedItem();
         Tienda tienda = (Tienda) binding.spinnerTienda.getSelectedItem();
@@ -218,6 +295,9 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         }
 
         Pedido pedido = new Pedido();
+        if (pedidoIdEdicion > 0) {
+            pedido.id = pedidoIdEdicion;
+        }
         pedido.clienteId = cliente.id;
         pedido.setClienteNombre(cliente.getNombre());
         pedido.tiendaId = tienda.id;

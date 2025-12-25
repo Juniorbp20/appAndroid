@@ -22,19 +22,26 @@ public interface PedidoDao {
     @Delete
     int delete(Pedido p);
 
+    @Query("SELECT * FROM pedidos WHERE id = :id LIMIT 1")
+    Pedido getPedidoById(long id);
+
     @Query("SELECT * FROM pedidos WHERE (:estado = '' OR estado = :estado) AND (:busqueda = '' OR cliente_nombre LIKE '%' || :busqueda || '%') AND (:clienteId IS NULL OR cliente_id = :clienteId) ORDER BY fecha_registro_epoch DESC")
     List<Pedido> getPedidosFiltrados(String estado, String busqueda, Integer clienteId);
 
-    @Query("SELECT * FROM pedidos WHERE date(fecha_entrega/1000,'unixepoch')=date(:epoch/1000,'unixepoch') ORDER BY fecha_entrega ASC")
+    @Query("SELECT * FROM pedidos WHERE date(fecha_registro_epoch/1000,'unixepoch')=date(:epoch/1000,'unixepoch') ORDER BY fecha_registro_epoch ASC")
     List<Pedido> pedidosPorDia(long epoch);
 
     @Query("SELECT * FROM pedidos WHERE (:estado = '' OR estado = :estado) ORDER BY fecha_registro_epoch DESC")
     List<Pedido> findByEstado(String estado);
 
-    @Query("SELECT SUM(CASE WHEN estado='pendiente' THEN total_general ELSE 0 END) AS totalPendiente, " +
-           "COUNT(CASE WHEN date(fecha_registro_epoch/1000,\'unixepoch\')=date(\'now\') THEN 1 END) AS pedidosHoy " +
+    @Query("SELECT SUM(CASE WHEN estado != 'pagado' AND estado != 'cancelado' THEN total_general ELSE 0 END) AS totalPendiente, " +
+           "SUM(CASE WHEN estado = 'pagado' THEN total_general ELSE 0 END) AS totalPagado, " +
+           "COUNT(CASE WHEN date(fecha_registro_epoch/1000,'unixepoch')=date('now') THEN 1 END) AS pedidosHoy " +
            "FROM pedidos")
     DashboardRow getDashboard();
+
+    @Query("SELECT cliente_nombre AS clienteNombre, SUM(ganancia) AS totalGanancia FROM pedidos WHERE estado != 'cancelado' GROUP BY cliente_id ORDER BY totalGanancia DESC")
+    List<com.example.gestiondecompras.models.ClienteGanancia> getGananciasPorCliente();
 
     @Query("SELECT COUNT(*) FROM pedidos WHERE estado = 'pendiente' AND fecha_entrega < :todayEpoch")
     int getOverdueOrdersCount(long todayEpoch);
@@ -50,4 +57,7 @@ public interface PedidoDao {
 
     @Query("SELECT COUNT(*) FROM pedidos WHERE tarjeta_rel_id = :tarjetaId AND estado = 'pendiente'")
     int countPedidosPorTarjeta(long tarjetaId);
+
+    @Query("SELECT * FROM pedidos WHERE estado != 'pagado' AND estado != 'cancelado' ORDER BY fecha_registro_epoch DESC")
+    List<Pedido> getPedidosNoPagados();
 }

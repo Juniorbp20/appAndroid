@@ -23,4 +23,10 @@ public interface ClienteDao {
 
     @Query("SELECT * FROM clientes")
     List<Cliente> getAllClientes();
+
+    @Query("SELECT c.*, " +
+           "(SELECT COUNT(*) FROM pedidos p WHERE p.cliente_id = c.id) as cantidadPedidos, " +
+           "(SELECT COALESCE(SUM(total_general), 0) FROM pedidos p WHERE p.cliente_id = c.id) as totalCompras " +
+           "FROM clientes c")
+    List<com.example.gestiondecompras.models.ClienteWithMetrics> getAllClientesWithMetrics();
 }

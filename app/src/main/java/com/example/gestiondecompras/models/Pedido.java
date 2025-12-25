@@ -8,11 +8,18 @@ import androidx.room.PrimaryKey;
 
 import java.util.Date;
 
+import androidx.room.Index;
+
 @Entity(tableName = "pedidos",
         foreignKeys = {
                 @ForeignKey(entity = Cliente.class, parentColumns = "id", childColumns = "cliente_id"),
                 @ForeignKey(entity = Tienda.class, parentColumns = "id", childColumns = "tienda_id"),
                 @ForeignKey(entity = Tarjeta.class, parentColumns = "id", childColumns = "tarjeta_rel_id")
+        },
+        indices = {
+                @Index("cliente_id"),
+                @Index("tienda_id"),
+                @Index("tarjeta_rel_id")
         })
 public class Pedido {
     @PrimaryKey(autoGenerate = true)

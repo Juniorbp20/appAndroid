@@ -35,6 +35,7 @@ public class ReportesActivity extends AppCompatActivity {
     private ReportesViewModel viewModel;
     private PedidosAdapter todosAdapter;
     private PedidosAdapter pagadosAdapter;
+    private List<Pedido> todosPedidosActual = Collections.emptyList(); // Capture all orders
     private List<Pedido> pedidosPagadosActual = Collections.emptyList();
 
     @Override
@@ -54,7 +55,7 @@ public class ReportesActivity extends AppCompatActivity {
 
         setupRecyclerViews();
         observeViewModel();
-        binding.btnExportPagados.setOnClickListener(v -> exportPagados());
+        binding.btnExportPagados.setOnClickListener(v -> exportReporteCompleto());
     }
 
     @Override
@@ -102,7 +103,10 @@ public class ReportesActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.getPedidos().observe(this, pedidos -> todosAdapter.actualizarLista(pedidos != null ? pedidos : Collections.emptyList()));
+        viewModel.getPedidos().observe(this, pedidos -> {
+            todosPedidosActual = pedidos != null ? pedidos : Collections.emptyList();
+            todosAdapter.actualizarLista(todosPedidosActual);
+        });
 
         viewModel.getPedidosPagados().observe(this, pagados -> {
             pedidosPagadosActual = pagados != null ? pagados : Collections.emptyList();
@@ -115,9 +119,9 @@ public class ReportesActivity extends AppCompatActivity {
         return String.format(Locale.getDefault(), "RD$ %,.2f", valor);
     }
 
-    private void exportPagados() {
-        if (pedidosPagadosActual == null || pedidosPagadosActual.isEmpty()) {
-            Toast.makeText(this, R.string.reportes_pagados_vacios, Toast.LENGTH_SHORT).show();
+    private void exportReporteCompleto() {
+        if (todosPedidosActual == null || todosPedidosActual.isEmpty()) {
+            Toast.makeText(this, "No hay pedidos para exportar", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -138,13 +142,14 @@ public class ReportesActivity extends AppCompatActivity {
         paint.setFakeBoldText(false);
         paint.setTextSize(14f);
         y += 24;
-        canvas.drawText(getString(R.string.reportes_pagados_title), margin, y, paint);
+        canvas.drawText("Reporte General de Pedidos", margin, y, paint);
         y += 24;
 
         @SuppressLint("DefaultLocale")
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        for (Pedido pedido : pedidosPagadosActual) {
-            if (y > pageHeight - margin) {
+        for (Pedido pedido : todosPedidosActual) {
+            // Check spacing (need ~6 lines per item now: Cliente, Tienda, Total, Estado, Fecha, Space)
+            if (y > pageHeight - margin - 100) { 
                 document.finishPage(page);
                 pageNumber++;
                 pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create();
@@ -157,7 +162,7 @@ public class ReportesActivity extends AppCompatActivity {
                 paint.setFakeBoldText(false);
                 paint.setTextSize(14f);
                 y += 24;
-                canvas.drawText(getString(R.string.reportes_pagados_title), margin, y, paint);
+                canvas.drawText("Reporte General de Pedidos", margin, y, paint);
                 y += 24;
             }
             canvas.drawText("Cliente: " + pedido.getClienteNombre(), margin, y, paint);
@@ -166,6 +171,10 @@ public class ReportesActivity extends AppCompatActivity {
             y += 16;
             canvas.drawText(String.format(Locale.getDefault(), "Total: RD$ %,.2f", pedido.getTotalGeneral()), margin, y, paint);
             y += 16;
+            // Add Status Line
+            canvas.drawText("Estado: " + pedido.getEstado().toUpperCase(), margin, y, paint);
+            y += 16;
+            
             String fecha = pedido.getFechaRegistro() != null ? sdf.format(pedido.getFechaRegistro()) : "";
             canvas.drawText("Registrado: " + fecha, margin, y, paint);
             y += 24;
@@ -185,7 +194,7 @@ public class ReportesActivity extends AppCompatActivity {
                 document.close();
                 return;
             }
-            String fileName = "pagados_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".pdf";
+            String fileName = "reporte_general_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".pdf";
             File file = new File(dir, fileName);
             FileOutputStream fos = new FileOutputStream(file);
             document.writeTo(fos);

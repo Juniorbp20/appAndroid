@@ -89,6 +89,7 @@
     <string name="editar_tarjeta_title">Editar tarjeta</string>
     <string name="guardar_cambios">Guardar cambios</string>
     <string name="accion_eliminar">Eliminar</string>
+    <string name="action_import_contact">Importar Contacto</string>
     <string name="toast_tarjeta_eliminada">Tarjeta eliminada</string>
     <string name="clientes_filter_all">Todos</string>
     <string name="clientes_filter_phone">Con tel\u00E9fono</string>
@@ -124,6 +125,63 @@
     <string name="dialog_pago_tarjeta_excede_deuda">No puedes pagar m\u00E1s de la deuda disponible</string>
     <string name="dialog_tarjeta_en_uso">No puedes eliminar la tarjeta porque tiene pedidos pendientes</string>
     <string name="tarjeta_campos_obligatorios">Completa todos los campos obligatorios</string>
+    <string name="inicio">Inicio</string>
+    <string name="seguridad">Seguridad</string>
+    <string name="bloqueo_biometrico">Bloqueo biométrico</string>
+    <string name="hora_recordatorio">Hora del recordatorio</string>
+    <string name="datos">Datos</string>
+    <string name="copia_seguridad">Copia de seguridad</string>
+    <string name="restaurar_datos">Restaurar datos</string>
+    <string name="resetear_app">Resetear aplicación</string>
+    <string name="informacion">Información</string>
+    <string name="version">Versión</string>
+    <string name="contacto">Contacto</string>
+    <string name="enviar_sugerencia">Enviar sugerencia</string>
+    <string name="reset_confirm_title">¿Estás seguro?</string>
+    <string name="reset_confirm_message">Esto borrará TODOS los datos de la aplicación. Esta acción no se puede deshacer.</string>
+    <string name="backup_success">Copia de seguridad guardada en Descargas</string>
+    <string name="restore_success">Datos restaurados correctamente</string>
+    <string name="error_general">Ocurrió un error</string>
+    <string name="biometric_title">Autenticación requerida</string>
+    <string name="biometric_subtitle">Desbloquea para entrar</string>
+    <string name="nuevo_cliente_title">Crear Nuevo Cliente</string>
+    <string name="ayuda">Ayuda / Manual</string>
+    <string name="ayuda_title">Manual de Usuario</string>
+    <string name="ayuda_intro">Bienvenido a la Guía de Usuario. Desliza hacia abajo para conocer cada función de la app.</string>
+
+    <string name="ayuda_clientes_title">1. Gestión de Clientes</string>
+    <string name="ayuda_clientes_desc">
+<b>Crear:</b> Usa el botón (+) para añadir un cliente manualmente o importarlo de tus contactos.\n
+<b>Acciones:</b> Toca un cliente para ver sus pedidos. Mantén presionado para ver opciones adicionales como Eliminar.\n
+<b>Búsqueda:</b> Usa la barra superior para buscar por nombre o teléfono.
+</string>
+
+    <string name="ayuda_pedidos_title">2. Control de Pedidos</string>
+    <string name="ayuda_pedidos_desc">
+<b>Nuevo Pedido:</b> Ve a "Nuevo Pedido", selecciona el cliente, la tienda y los productos. El sistema calculará el total y la ganancia.\n
+<b>Estados:</b> Los pedidos inician como "Por Cobrar". Mantén presionado un pedido en la lista para cambiar su estado a "Entregado", "Pagado" o "Cancelado".\n
+<b>Filtros:</b> En "Ver Pedidos", usa el filtro superior para ver solo los que te deben (Por Cobrar) o los Atrasados.\n
+<b>Eliminar:</b> Desliza un pedido hacia la izquierda para borrarlo.
+</string>
+
+    <string name="ayuda_tarjetas_title">3. Tarjetas de Crédito</string>
+    <string name="ayuda_tarjetas_desc">
+<b>Registro:</b> Agrega tus tarjetas con su límite y fechas de corte. La app te dirá cuánto tienes disponible.\n
+<b>Pagos:</b> Al hacer una compra, selecciona la tarjeta usada. Para registrar el pago de la tarjeta, toca la tarjeta en la lista y selecciona "Pagar". Puedes hacer abonos parciales y verás tu deuda actual disminuir.\n
+<b>Alerta:</b> La barra de progreso se pondrá roja si estás cerca de tu límite.
+</string>
+
+    <string name="ayuda_reportes_title">4. Reportes y Ganancias</string>
+    <string name="ayuda_reportes_desc">
+<b>Dashboard:</b> La pantalla principal te resume cuánto te deben (Total Pendiente) y tu ganancia esperada.\n
+<b>Exportar:</b> En la sección "Reportes", puedes generar un PDF con el historial de pedidos pagados para tu control personal.
+</string>
+
+    <string name="ayuda_seguridad_title">5. Seguridad y Datos</string>
+    <string name="ayuda_seguridad_desc">
+<b>Biometría:</b> Ve a Configuración para activar el bloqueo con huella dactilar.\n
+<b>Respaldo:</b> Usa "Crear Copia de Seguridad" para guardar tus datos en Google Drive o en tu teléfono. Si cambias de dispositivo, usa "Restaurar Copia" para recuperar tu información.
+</string>
 </resources>
 
 

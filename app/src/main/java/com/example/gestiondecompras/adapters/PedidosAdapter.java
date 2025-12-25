@@ -128,15 +128,16 @@ public class PedidosAdapter extends RecyclerView.Adapter<PedidosAdapter.PedidoVi
 
         private int obtenerColorEstado(String estado) {
             if (Pedido.ESTADO_PAGADO.equalsIgnoreCase(estado)) {
-                return R.color.success_color;
+                return R.color.status_paid;
             }
             if (Pedido.ESTADO_ENTREGADO.equalsIgnoreCase(estado)) {
-                return R.color.dashboard_card_orders;
+                return R.color.status_delivered;
             }
             if (Pedido.ESTADO_CANCELADO.equalsIgnoreCase(estado)) {
-                return R.color.error_color;
+                return R.color.status_cancelled;
             }
-            return R.color.dashboard_card_secondary;
+            // Pendiente (y cualquier otro)
+            return R.color.status_pending;
         }
     }
 }

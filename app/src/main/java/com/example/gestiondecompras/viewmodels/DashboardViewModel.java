@@ -64,6 +64,14 @@ public class DashboardViewModel extends AndroidViewModel {
         });
     }
 
+    public LiveData<java.util.List<com.example.gestiondecompras.models.ClienteGanancia>> getClientEarnings() {
+        MutableLiveData<java.util.List<com.example.gestiondecompras.models.ClienteGanancia>> data = new MutableLiveData<>();
+        executorService.execute(() -> {
+            data.postValue(db.pedidoDao().getGananciasPorCliente());
+        });
+        return data;
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();

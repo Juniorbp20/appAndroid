@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:name=".GestionComprasApp"
         android:allowBackup="true"
         android:label="Gestión de Compras"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@mipmap/ic_shoppong"
+        android:roundIcon="@mipmap/ic_shoppong"
         android:supportsRtl="true"
         android:theme="@style/Theme.Material3.DayNight.NoActionBar">
 
 
-        <activity android:name="com.example.gestiondecompras.activities.TarjetasActivity" />
-        <activity android:name="com.example.gestiondecompras.activities.ListaPedidosActivity" />
-        <activity android:name="com.example.gestiondecompras.activities.NuevoPedidoActivity" />
-        <activity android:name="com.example.gestiondecompras.activities.ListaClientesActivity" />
-        <activity android:name="com.example.gestiondecompras.activities.ReportesActivity" />
-        <activity android:name="com.example.gestiondecompras.activities.NuevoClienteActivity" />
-        <activity android:name="com.example.gestiondecompras.activities.NuevaTarjetaActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.TarjetasActivity"
+            android:label="@string/tarjetas_title"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.ListaPedidosActivity"
+            android:label="@string/pedidos_title"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.NuevoPedidoActivity"
+            android:label="@string/nuevo_pedido"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.ListaClientesActivity"
+            android:label="@string/clientes_title"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.ReportesActivity"
+            android:label="@string/reportes_title"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.NuevoClienteActivity"
+            android:label="@string/nuevo_cliente_title"
+            android:parentActivityName=".activities.ListaClientesActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.NuevaTarjetaActivity"
+            android:label="@string/tarjetas_nueva"
+            android:parentActivityName=".activities.TarjetasActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.CalendarioActivity"
+            android:label="@string/calendario"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.SettingsActivity"
+            android:label="@string/configuracion"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.AyudaActivity"
+            android:label="@string/ayuda_title"
+            android:parentActivityName=".activities.MainActivity" />
 
 
         <activity android:name="com.example.gestiondecompras.activities.MainActivity"

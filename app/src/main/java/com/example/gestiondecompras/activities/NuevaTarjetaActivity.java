@@ -54,6 +54,7 @@ public class NuevaTarjetaActivity extends AppCompatActivity {
 
     private void setupSaveButton() {
         binding.btnGuardar.setOnClickListener(v -> saveTarjeta());
+        setupDateFormatting();
     }
 
     private void cargarDatosEdicion(Intent intent) {
@@ -99,6 +100,51 @@ public class NuevaTarjetaActivity extends AppCompatActivity {
         return String.valueOf(valor);
     }
 
+    private void setupDateFormatting() {
+        binding.etFechaVencimiento.addTextChangedListener(new android.text.TextWatcher() {
+            private boolean isUpdating;
+            private int oldLength;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                oldLength = s.length();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                if (isUpdating) {
+                    return;
+                }
+                isUpdating = true;
+
+                String str = s.toString().replaceAll("[^\\d]", ""); // Keep only digits
+                String formatted = "";
+
+                if (str.length() >= 2) {
+                    formatted = str.substring(0, 2) + "/" + str.substring(2);
+                    if (str.length() > 4) { // Limit to MM/YY (4 digits total)
+                         formatted = formatted.substring(0, 5);
+                    }
+                } else {
+                    formatted = str;
+                }
+                
+                // Handle deletion of the slash naturally by checking if we reduced length
+                // But generally, the above rebuilds the string securely. 
+                // Only issue is cursor position.
+
+                binding.etFechaVencimiento.setText(formatted);
+                // Set cursor to end
+                binding.etFechaVencimiento.setSelection(binding.etFechaVencimiento.getText().length());
+
+                isUpdating = false;
+            }
+        });
+    }
+
     private void saveTarjeta() {
         String banco = texto(binding.etBanco);
         String alias = texto(binding.etAlias);
@@ -110,6 +156,11 @@ public class NuevaTarjetaActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(banco) || TextUtils.isEmpty(limiteTexto) || TextUtils.isEmpty(diaCorteTexto) || TextUtils.isEmpty(fechaVencimiento)) {
             Toast.makeText(this, R.string.tarjeta_campos_obligatorios, Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        // --- Date Validation ---
+        if (!isValidDate(fechaVencimiento)) {
+             return; // Toast handled in isValidDate
         }
 
         double limite;
@@ -136,6 +187,45 @@ public class NuevaTarjetaActivity extends AppCompatActivity {
 
         Toast.makeText(this, R.string.toast_tarjeta_guardada, Toast.LENGTH_SHORT).show();
         finish();
+    }
+    
+    private boolean isValidDate(String date) {
+        if (date.length() != 5 || !date.contains("/")) {
+            binding.etFechaVencimiento.setError("Formato inválido. Use MM/YY");
+            return false;
+        }
+
+        String[] parts = date.split("/");
+        if (parts.length != 2) {
+             binding.etFechaVencimiento.setError("Formato inválido");
+             return false;
+        }
+
+        int month, year;
+        try {
+            month = Integer.parseInt(parts[0]);
+            year = Integer.parseInt(parts[1]) + 2000; // Assume 2000s
+        } catch (NumberFormatException e) {
+            binding.etFechaVencimiento.setError("Fecha inválida");
+            return false;
+        }
+
+        if (month < 1 || month > 12) {
+            binding.etFechaVencimiento.setError("Mes inválido (01-12)");
+            return false;
+        }
+
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        int currentYear = now.get(java.util.Calendar.YEAR);
+        int currentMonth = now.get(java.util.Calendar.MONTH) + 1; // 0-indexed
+
+        if (year < currentYear || (year == currentYear && month < currentMonth)) {
+            binding.etFechaVencimiento.setError("La tarjeta está vencida");
+            return false;
+        }
+        
+        binding.etFechaVencimiento.setError(null);
+        return true;
     }
 
     private String texto(TextInputEditText editText) {

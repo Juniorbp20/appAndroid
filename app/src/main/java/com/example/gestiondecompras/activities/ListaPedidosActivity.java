@@ -29,7 +29,8 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
     private PedidosAdapter adapter;
     private Integer filtroClienteId = null;
     private String filtroClienteNombre = null;
-    private final String[] estados = {"Todos", "Pendientes", "Entregados", "Pagados", "Atrasados"};
+    private final String[] estados = {"Todos", "Por Cobrar", "Pendientes", "Entregados", "Pagados", "Atrasados"};
+    private boolean filtroAtrasados = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,9 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
             if (getIntent().hasExtra("cliente_nombre")) {
                 filtroClienteNombre = getIntent().getStringExtra("cliente_nombre");
             }
+            if (getIntent().hasExtra("filtro_atrasados")) {
+                filtroAtrasados = getIntent().getBooleanExtra("filtro_atrasados", false);
+            }
         }
 
         setupRecyclerView();
@@ -59,7 +63,7 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         observeViewModel();
 
         actualizarTitulo();
-        cargarPedidos();
+        // cargarPedidos(); // Moved to after filter setup to avoid double load or wrong filter
     }
 
     @Override
@@ -95,7 +99,35 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         binding.spinnerFiltroEstado.setAdapter(
                 new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, estados)
         );
-        binding.spinnerFiltroEstado.setSelection(1); // Pendientes por defecto
+
+        int selection = 0; // Default: Todos
+        if (filtroAtrasados) {
+            selection = 5; // Atrasados
+        } else if (getIntent() != null && getIntent().hasExtra("filtro_estado")) {
+            String extra = getIntent().getStringExtra("filtro_estado");
+            if (extra != null) {
+                switch (extra.toLowerCase()) {
+                    case "por_cobrar": selection = 1; break;
+                    case "pendiente": selection = 2; break;
+                    case "entregado": selection = 3; break;
+                    case "pagado": selection = 4; break;
+                    // default 0
+                }
+            }
+        } else {
+            // Default logic if no extra? previously "Pendientes".
+            // If user opens List manually, maybe show all or sticky?
+            // User requested "Ver pedidos" -> All?
+            // Previous code had: setSelection(1) -> Pendientes.
+            // Let's default to Todos (0) now? Or stick to Pendientes (2)?
+            // New "Ver Pedidos" button likely implies All or Pendientes.
+            // Let's set default to 0 (Todos) unless specified.
+            // Or maybe 2 (Pendientes) is safer for daily use.
+            // Let's select 0 (Todos) to be neutral.
+            selection = 0;
+        }
+
+        binding.spinnerFiltroEstado.setSelection(selection);
 
         binding.spinnerFiltroEstado.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
@@ -134,9 +166,58 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
 
     @Override
     public void onPedidoClick(Pedido pedido) {
-        Intent i = new Intent(this, NuevoPedidoActivity.class);
-        i.putExtra("pedido_id", pedido.id);
-        startActivity(i);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.dialog_detalle_pedido, null);
+        
+        android.widget.TextView tvProducto = view.findViewById(R.id.tv_detalle_producto);
+        android.widget.TextView tvTienda = view.findViewById(R.id.tv_detalle_tienda);
+        android.widget.TextView tvTracking = view.findViewById(R.id.tv_detalle_tracking);
+        android.widget.TextView tvFechaCompra = view.findViewById(R.id.tv_detalle_fecha_compra);
+        android.widget.TextView tvFechaEntrega = view.findViewById(R.id.tv_detalle_fecha_entrega);
+        android.widget.TextView tvCosto = view.findViewById(R.id.tv_detalle_costo);
+        android.widget.TextView tvVenta = view.findViewById(R.id.tv_detalle_venta);
+        android.widget.TextView tvGanancia = view.findViewById(R.id.tv_detalle_ganancia);
+        android.widget.TextView tvEstado = view.findViewById(R.id.tv_detalle_estado);
+        
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
+        
+        tvProducto.setText("Cliente: " + pedido.getClienteNombre()); // Using Client as main title/product since Product name is missing
+        tvTienda.setText(pedido.getTienda());
+        tvTracking.setText("N/A"); // Tracking field does not exist in model
+        
+        tvFechaCompra.setText(pedido.getFechaRegistro() != null ? sdf.format(pedido.getFechaRegistro()) : "N/A");
+        tvFechaEntrega.setText(pedido.getFechaEntrega() != null ? sdf.format(pedido.getFechaEntrega()) : "N/A");
+        
+        tvCosto.setText(String.format("RD$ %,.2f", pedido.getMontoCompra()));
+        tvVenta.setText(String.format("RD$ %,.2f", pedido.getTotalGeneral()));
+        tvGanancia.setText(String.format("RD$ %,.2f", pedido.getGanancia()));
+        
+        tvEstado.setText(pedido.getEstado());
+        
+        int colorRes;
+        if (Pedido.ESTADO_PAGADO.equalsIgnoreCase(pedido.getEstado())) {
+            colorRes = R.color.status_paid;
+        } else if (Pedido.ESTADO_ENTREGADO.equalsIgnoreCase(pedido.getEstado())) {
+            colorRes = R.color.status_delivered;
+        } else if (Pedido.ESTADO_CANCELADO.equalsIgnoreCase(pedido.getEstado())) {
+            colorRes = R.color.status_cancelled;
+        } else {
+            colorRes = R.color.status_pending;
+        }
+        
+        tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+            androidx.core.content.ContextCompat.getColor(this, colorRes)
+        ));
+        tvEstado.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
+        
+        builder.setView(view)
+               .setPositiveButton("Cerrar", null)
+               .setNeutralButton("Editar", (dialog, which) -> {
+                   Intent i = new Intent(this, NuevoPedidoActivity.class);
+                   i.putExtra("pedido_id", pedido.getId());
+                   startActivity(i);
+               })
+               .show();
     }
 
     @Override

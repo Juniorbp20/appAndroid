@@ -2,9 +2,10 @@ package com.example.gestordecompras.activities;
 
 import android.os.Bundle;
 import android.widget.CalendarView;
-import android.widget.ListView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.gestordecompras.R;
 import com.example.gestordecompras.adapters.PedidosAdapter;
 import com.example.gestordecompras.database.DatabaseHelper;
@@ -18,7 +19,7 @@ public class CalendarioActivity extends AppCompatActivity {
 
     private DatabaseHelper dbHelper;
     private CalendarView calendarView;
-    private ListView lvPedidosDelDia;
+    private RecyclerView rvPedidosDelDia;
     private TextView tvFechaSeleccionada;
     private SimpleDateFormat dateFormatter;
 
@@ -36,8 +37,10 @@ public class CalendarioActivity extends AppCompatActivity {
 
     private void initViews() {
         calendarView = findViewById(R.id.calendarView);
-        lvPedidosDelDia = findViewById(R.id.lvPedidosDelDia);
+        rvPedidosDelDia = findViewById(R.id.rvPedidosDelDia);
         tvFechaSeleccionada = findViewById(R.id.tvFechaSeleccionada);
+
+        rvPedidosDelDia.setLayoutManager(new LinearLayoutManager(this));
 
         // Fecha inicial (hoy)
         tvFechaSeleccionada.setText("Hoy: " + dateFormatter.format(new Date()));
@@ -60,7 +63,7 @@ public class CalendarioActivity extends AppCompatActivity {
         List<Pedido> pedidos = dbHelper.getPedidosPorFecha(new Date(fechaTimestamp));
 
         PedidosAdapter adapter = new PedidosAdapter(pedidos, this::onPedidoClick);
-        lvPedidosDelDia.setAdapter(adapter);
+        rvPedidosDelDia.setAdapter(adapter);
 
         // Actualizar contador
         TextView tvCantidad = findViewById(R.id.tvCantidadPedidos);

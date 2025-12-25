@@ -65,9 +65,15 @@ public class ClientesAdapter extends RecyclerView.Adapter<ClientesAdapter.Client
             tvNombre.setText(c.getNombre());
             if (c.getTelefono() != null && !c.getTelefono().isEmpty()) { tvTelefono.setText(c.getTelefono()); tvTelefono.setVisibility(View.VISIBLE);} else tvTelefono.setVisibility(View.GONE);
             if (c.getEmail() != null && !c.getEmail().isEmpty()) { tvEmail.setText(c.getEmail()); tvEmail.setVisibility(View.VISIBLE);} else tvEmail.setVisibility(View.GONE);
-            // Placeholder de métricas; se pueden llenar desde la activity con consultas reales
-            tvCantidadPedidos.setText("0 pedidos");
-            tvTotalCompras.setText("RD$ 0.00");
+            
+            if (c instanceof com.example.gestiondecompras.models.ClienteWithMetrics) {
+                com.example.gestiondecompras.models.ClienteWithMetrics cm = (com.example.gestiondecompras.models.ClienteWithMetrics) c;
+                tvCantidadPedidos.setText(cm.cantidadPedidos + " pedidos");
+                tvTotalCompras.setText(String.format(java.util.Locale.getDefault(), "RD$ %,.2f", cm.totalCompras));
+            } else {
+                tvCantidadPedidos.setText("0 pedidos");
+                tvTotalCompras.setText("RD$ 0.00");
+            }
         }
     }
 }

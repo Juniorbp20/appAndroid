@@ -33,13 +33,23 @@ public class ListaClientesViewModel extends AndroidViewModel {
 
     public void loadClientes() {
         executorService.execute(() -> {
-            clientes.postValue(db.clienteDao().getAllClientes());
+            // We cast validly because we change the return type logic or just feed it into the LiveData<List<Cliente>>
+            // Since ClienteWithMetrics extends Cliente, we can post it to MutableLiveData<List<Cliente>>
+            List<? extends Cliente> list = db.clienteDao().getAllClientesWithMetrics();
+            clientes.postValue((List<Cliente>) list);
         });
     }
 
     public void deleteCliente(Cliente cliente) {
         executorService.execute(() -> {
             db.clienteDao().delete(cliente);
+            loadClientes();
+        });
+    }
+
+    public void insertCliente(Cliente cliente) {
+        executorService.execute(() -> {
+            db.clienteDao().insert(cliente);
             loadClientes();
         });
     }

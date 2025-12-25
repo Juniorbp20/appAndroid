@@ -124,6 +124,12 @@ public class TarjetasActivity extends AppCompatActivity implements TarjetasAdapt
             titulo += " - " + tarjeta.alias;
         }
         tvNombre.setText(titulo);
+        
+        android.widget.TextView tvDeuda = dialog.findViewById(R.id.tvDeudaActual);
+        if (tvDeuda != null) {
+            tvDeuda.setText(String.format(java.util.Locale.getDefault(), "Deuda Actual: RD$ %,.2f", tarjeta.getDeudaActual()));
+        }
+
 
         btnRegistrar.setOnClickListener(v -> {
             try {

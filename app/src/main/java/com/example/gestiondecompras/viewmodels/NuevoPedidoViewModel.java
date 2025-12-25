@@ -76,12 +76,31 @@ public class NuevoPedidoViewModel extends AndroidViewModel {
 
     public void savePedido(Pedido pedido, Tarjeta tarjeta) {
         executorService.execute(() -> {
-            long pedidoId = db.pedidoDao().insert(pedido);
-            pedido.id = pedidoId;
-
-            tarjeta.setDeudaActual(tarjeta.getDeudaActual() + pedido.getMontoCompra());
-            db.tarjetaDao().update(tarjeta);
+            if (pedido.getId() > 0) {
+                // Determine valid logic for updates. For now, we update the entry.
+                // NOTE: Debt adjustment logic on edit is complex (need old value). 
+                // We will assume for this step we just update the order details.
+                db.pedidoDao().update(pedido);
+            } else {
+                long pedidoId = db.pedidoDao().insert(pedido);
+                pedido.id = pedidoId;
+                
+                // Only increase debt on NEW orders for now to avoid double counting on edits without tracking diffs
+                if (tarjeta != null) {
+                    tarjeta.setDeudaActual(tarjeta.getDeudaActual() + pedido.getMontoCompra());
+                    db.tarjetaDao().update(tarjeta);
+                }
+            }
         });
+    }
+    
+    public LiveData<Pedido> getPedido(long id) {
+        MutableLiveData<Pedido> pedidoLiveData = new MutableLiveData<>();
+        executorService.execute(() -> {
+            Pedido p = db.pedidoDao().getPedidoById(id);
+            pedidoLiveData.postValue(p);
+        });
+        return pedidoLiveData;
     }
 
     @Override

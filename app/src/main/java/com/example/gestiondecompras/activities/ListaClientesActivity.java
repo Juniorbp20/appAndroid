@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -92,8 +93,25 @@ public class ListaClientesActivity extends AppCompatActivity implements Clientes
     }
 
     private void setupFab() {
-        binding.fabNuevo.setOnClickListener(v ->
-                startActivity(new Intent(this, NuevoClienteActivity.class)));
+        binding.fabNuevo.setOnClickListener(this::showFabMenu);
+    }
+
+    private void showFabMenu(View v) {
+        androidx.appcompat.widget.PopupMenu popup = new androidx.appcompat.widget.PopupMenu(this, v);
+        popup.getMenu().add(0, 1, 0, getString(R.string.nuevo_cliente_title)); 
+        popup.getMenu().add(0, 2, 1, getString(R.string.action_import_contact));
+
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) {
+                startActivity(new Intent(this, NuevoClienteActivity.class));
+                return true;
+            } else if (item.getItemId() == 2) {
+                checkPermissionAndPick();
+                return true;
+            }
+            return false;
+        });
+        popup.show();
     }
 
     private void observeViewModel() {
@@ -163,5 +181,96 @@ public class ListaClientesActivity extends AppCompatActivity implements Clientes
                 .setPositiveButton(R.string.accion_eliminar, (d, w) -> viewModel.deleteCliente(cliente))
                 .setNegativeButton(R.string.accion_cancelar, null)
                 .show();
+    }
+    private final androidx.activity.result.ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    pickContact();
+                } else {
+                    Toast.makeText(this, "Permiso denegado para leer contactos", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private final androidx.activity.result.ActivityResultLauncher<Void> pickContactLauncher =
+            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.PickContact(), contactUri -> {
+                if (contactUri != null) {
+                    importarContacto(contactUri);
+                }
+            });
+
+    // Old menu code removed
+
+    private void checkPermissionAndPick() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            pickContact();
+        } else {
+            requestPermissionLauncher.launch(android.Manifest.permission.READ_CONTACTS);
+        }
+    }
+
+    private void pickContact() {
+        pickContactLauncher.launch(null);
+    }
+
+    private void importarContacto(android.net.Uri contactUri) {
+        try (android.database.Cursor cursor = getContentResolver().query(contactUri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int idIndex = cursor.getColumnIndex(android.provider.ContactsContract.Contacts._ID);
+                int nameIndex = cursor.getColumnIndex(android.provider.ContactsContract.Contacts.DISPLAY_NAME);
+                int hasPhoneIndex = cursor.getColumnIndex(android.provider.ContactsContract.Contacts.HAS_PHONE_NUMBER);
+
+                if (idIndex != -1 && nameIndex != -1 && hasPhoneIndex != -1) {
+                    String id = cursor.getString(idIndex);
+                    String name = cursor.getString(nameIndex);
+                    String hasPhone = cursor.getString(hasPhoneIndex);
+
+                    String phoneNumber = "";
+                    String emailAddress = "";
+
+                    if ("1".equals(hasPhone)) {
+                        try (android.database.Cursor phones = getContentResolver().query(
+                                android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                null,
+                                android.provider.ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                                new String[]{id},
+                                null)) {
+                            if (phones != null && phones.moveToFirst()) {
+                                int numberIndex = phones.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER);
+                                if (numberIndex != -1) {
+                                    phoneNumber = phones.getString(numberIndex);
+                                }
+                            }
+                        }
+                    }
+
+                    try (android.database.Cursor emails = getContentResolver().query(
+                            android.provider.ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                            null,
+                            android.provider.ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                            new String[]{id},
+                            null)) {
+                        if (emails != null && emails.moveToFirst()) {
+                            int emailIndex = emails.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Email.DATA);
+                            if (emailIndex != -1) {
+                                emailAddress = emails.getString(emailIndex);
+                            }
+                        }
+                    }
+
+                    Cliente nuevoCliente = new Cliente();
+                    nuevoCliente.nombre = name;
+                    nuevoCliente.telefono = phoneNumber;
+                    nuevoCliente.email = emailAddress;
+                    nuevoCliente.activo = true;
+                    // nuevoCliente.fechaRegistro = System.currentTimeMillis(); // Field does not exist
+
+                    viewModel.insertCliente(nuevoCliente);
+                    Toast.makeText(this, "Contacto importado: " + name, Toast.LENGTH_SHORT).show();
+                }
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al importar contacto", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 }

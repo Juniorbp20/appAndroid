@@ -27,5 +27,11 @@
     <color name="dashboard_card_overdue">#F44336</color>
     <color name="dashboard_card_earnings">#4CAF50</color>
     <color name="gray_medium">#9E9E9E</color>
+    
+    <!-- Status Colors -->
+    <color name="status_pending">#FFC107</color> <!-- Yellow for Pending -->
+    <color name="status_delivered">#2196F3</color> <!-- Blue for Delivered -->
+    <color name="status_paid">#4CAF50</color> <!-- Green for Paid -->
+    <color name="status_cancelled">#F44336</color> <!-- Red for Cancelled -->
 </resources>
 

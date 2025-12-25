@@ -42,6 +42,9 @@ public class ListaPedidosViewModel extends AndroidViewModel {
             if (isAtrasados(estado)) {
                 resultado = db.pedidoDao().getPedidosAtrasados(System.currentTimeMillis());
                 resultado = filtrar(resultado, trimmedSearch, clienteId);
+            } else if ("POR_COBRAR".equals(estadoQuery)) {
+                resultado = db.pedidoDao().getPedidosNoPagados();
+                resultado = filtrar(resultado, trimmedSearch, clienteId);
             } else {
                 resultado = db.pedidoDao().getPedidosFiltrados(estadoQuery, trimmedSearch, clienteId);
             }
@@ -76,13 +79,20 @@ public class ListaPedidosViewModel extends AndroidViewModel {
         if (estado == null) return "";
         switch (estado.toLowerCase(Locale.getDefault())) {
             case "pendientes":
+            case "pendiente":
                 return Pedido.ESTADO_PENDIENTE;
             case "entregados":
+            case "entregado":
                 return Pedido.ESTADO_ENTREGADO;
             case "pagados":
+            case "pagado":
                 return Pedido.ESTADO_PAGADO;
             case "cancelados":
+            case "cancelado":
                 return Pedido.ESTADO_CANCELADO;
+            case "por cobrar":
+            case "por_cobrar":
+                return "POR_COBRAR";
             default:
                 return "";
         }

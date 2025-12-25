@@ -23,7 +23,7 @@ import com.example.gestiondecompras.models.Tienda;
                 Tarjeta.class,
                 Pedido.class
         },
-        version = 1,
+        version = 3,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -37,7 +37,7 @@ public abstract class AppDatabase extends RoomDatabase {
             db.execSQL("INSERT INTO tiendas (nombre) VALUES ('Temu')");
             db.execSQL("INSERT INTO tiendas (nombre) VALUES ('Shein')");
             db.execSQL("INSERT INTO tiendas (nombre) VALUES ('Amazon')");
-            db.execSQL("INSERT INTO tiendas (nombre) VALUES ('Ebay')");
+            db.execSQL("INSERT INTO tiendas (nombre) VALUES ('EBay')");
             db.execSQL("INSERT INTO tiendas (nombre) VALUES ('AliExpress')");
             db.execSQL("INSERT INTO tiendas (nombre) VALUES ('Alibaba')");
         }
