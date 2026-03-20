@@ -1,29 +1,45 @@
 package com.example.gestiondecompras.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.adapters.PedidosAdapter;
 import com.example.gestiondecompras.databinding.ActivityMainBinding;
-import com.example.gestiondecompras.models.Pedido;
+import com.google.android.gms.ads.AdRequest;
 import com.example.gestiondecompras.viewmodels.DashboardViewModel;
 
 import java.util.Calendar;
+import java.util.concurrent.Executor;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private DashboardViewModel viewModel;
     private PedidosAdapter proximosAdapter;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Toast.makeText(this, "Permiso de notificaciones concedido", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "No se podrán mostrar notificaciones de recordatorio", Toast.LENGTH_LONG).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +52,27 @@ public class MainActivity extends AppCompatActivity {
         updateGreeting();
         setupUpcomingList();
         setupClickListeners();
-        setupDrawer(); // NEW
+        setupDrawer(); 
         observeViewModel();
         
         checkBiometricSecurity();
         checkFirstRun();
+        loadBannerAd();
+        askNotificationPermission();
+    }
+
+    private void askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+    }
+
+    private void loadBannerAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
     }
 
     private void checkFirstRun() {
@@ -57,38 +89,32 @@ public class MainActivity extends AppCompatActivity {
         boolean biometricEnabled = prefs.getBoolean("biometric_enabled", false);
 
         if (biometricEnabled) {
-            java.util.concurrent.Executor executor = androidx.core.content.ContextCompat.getMainExecutor(this);
+            Executor executor = ContextCompat.getMainExecutor(this);
             androidx.biometric.BiometricPrompt biometricPrompt = new androidx.biometric.BiometricPrompt(MainActivity.this,
                     executor, new androidx.biometric.BiometricPrompt.AuthenticationCallback() {
                 @Override
-                public void onAuthenticationError(int errorCode, @androidx.annotation.NonNull CharSequence errString) {
+                public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                     super.onAuthenticationError(errorCode, errString);
-                    // If user canceled (pressed back), close app. 
-                    // If no biometrics, we might want to let them in or show settings?
-                    // For now, robustly close but show why.
                     if (errorCode == androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED || 
                         errorCode == androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
                         finishAffinity();
                     } else {
-                         android.widget.Toast.makeText(MainActivity.this, "Error de autenticación: " + errString, android.widget.Toast.LENGTH_LONG).show();
+                         Toast.makeText(MainActivity.this, "Error de autenticación: " + errString, Toast.LENGTH_LONG).show();
                          finishAffinity();
                     }
                 }
 
                 @Override
-                public void onAuthenticationSucceeded(@androidx.annotation.NonNull androidx.biometric.BiometricPrompt.AuthenticationResult result) {
+                public void onAuthenticationSucceeded(@NonNull androidx.biometric.BiometricPrompt.AuthenticationResult result) {
                     super.onAuthenticationSucceeded(result);
-                    // Continue to app
                 }
 
                 @Override
                 public void onAuthenticationFailed() {
                     super.onAuthenticationFailed();
-                    // Optional: Show toast
                 }
             });
 
-            // Allow PIN/Pattern as fallback if Biometric fails or is unavailable
             androidx.biometric.BiometricPrompt.PromptInfo promptInfo = new androidx.biometric.BiometricPrompt.PromptInfo.Builder()
                     .setTitle(getString(R.string.biometric_title))
                     .setSubtitle(getString(R.string.biometric_subtitle))
@@ -101,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupDrawer() {
-        // Toolbar hamburger click opens drawer
         binding.toolbar.setNavigationOnClickListener(v -> 
             binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
         );
@@ -125,14 +150,11 @@ public class MainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_ayuda) {
                 startActivity(new Intent(this, AyudaActivity.class));
             }
-            // Close drawer
-            ((androidx.drawerlayout.widget.DrawerLayout) binding.getRoot()).closeDrawer(androidx.core.view.GravityCompat.START);
+            binding.drawerLayout.closeDrawer(androidx.core.view.GravityCompat.START);
             return true;
         });
     }
 
-    // Unlink old chip listeners (chips removed from XML)
-    // Removed unused setupClickListeners logic for chips
     private void updateGreeting() {
         Calendar now = Calendar.getInstance();
         int hour = now.get(Calendar.HOUR_OF_DAY);
@@ -205,10 +227,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.getActiveClientsCount().observe(this, count -> {
-            // Mantener label estático en esta tarjeta.
-        });
-
         viewModel.getOverdueOrdersCount().observe(this, count -> {
             if (count != null) {
                 binding.tvPedidosAtrasados.setText(String.valueOf(count));
@@ -256,9 +274,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         viewModel.loadDashboardData();
+        if (binding.adView != null) {
+            binding.adView.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (binding.adView != null) {
+            binding.adView.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (binding.adView != null) {
+            binding.adView.destroy();
+        }
+        super.onDestroy();
     }
 }
-
-
-
-

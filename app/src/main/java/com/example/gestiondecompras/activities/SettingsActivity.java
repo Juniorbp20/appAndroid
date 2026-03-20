@@ -234,12 +234,22 @@ public class SettingsActivity extends AppCompatActivity {
     private void contactSupport() {
          android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_SENDTO);
          intent.setData(android.net.Uri.parse("mailto:")); 
-         intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"soporte@ejemplo.com"});
+         intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"sssuport2@gmail.com"});
          intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Sugerencia - Gestión de Compras");
+         
+         // Intentar abrir Gmail específicamente
+         intent.setPackage("com.google.android.gm");
+
          if (intent.resolveActivity(getPackageManager()) != null) {
              startActivity(intent);
          } else {
-             Toast.makeText(this, "No hay app de correo instalada", Toast.LENGTH_SHORT).show();
+             // Fallback si Gmail no está instalado
+             intent.setPackage(null);
+             if (intent.resolveActivity(getPackageManager()) != null) {
+                 startActivity(intent);
+             } else {
+                 Toast.makeText(this, "No hay app de correo instalada", Toast.LENGTH_SHORT).show();
+             }
          }
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
+import com.google.android.gms.ads.MobileAds;
 
 public class GestionComprasApp extends Application {
 
@@ -11,6 +12,11 @@ public class GestionComprasApp extends Application {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        
+        // Inicializar el SDK de anuncios de Google
+        new Thread(() -> {
+            MobileAds.initialize(this, initializationStatus -> {});
+        }).start();
     }
 
     private void createNotificationChannel() {

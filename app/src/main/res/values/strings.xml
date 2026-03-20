@@ -182,11 +182,5 @@
 <b>Biometría:</b> Ve a Configuración para activar el bloqueo con huella dactilar.\n
 <b>Respaldo:</b> Usa "Crear Copia de Seguridad" para guardar tus datos en Google Drive o en tu teléfono. Si cambias de dispositivo, usa "Restaurar Copia" para recuperar tu información.
 </string>
+    <string name="creado_por">By Gustavo J. Bonifacio</string>
 </resources>
-
-
-
-
-
-
-

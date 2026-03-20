@@ -30,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginBottom="60dp"
             android:fillViewport="true"
             android:paddingBottom="24dp">
 
@@ -401,6 +402,15 @@
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
+
+        <!-- BANNER ADS -->
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-652719909237109/2366402012" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
