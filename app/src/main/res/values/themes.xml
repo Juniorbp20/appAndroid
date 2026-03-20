@@ -1,10 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.GestionDeCompras" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Forzamos el color negro en las barras -->
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@color/background_light</item>
-        <item name="android:navigationBarColor">@color/background_light</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+
+        <!-- Forzamos iconos blancos (windowLightStatusBar = false) -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+
+        <!-- Desactivamos EdgeToEdge para que la app no suba -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+
+        <!-- Colores primarios para evitar el morado por defecto -->
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorSecondary">@color/dashboard_card_secondary</item>
     </style>
 
     <style name="Theme.GestionDeCompras" parent="Base.Theme.GestionDeCompras"/>
+
+    <style name="CircleImage" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

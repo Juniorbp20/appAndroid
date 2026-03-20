@@ -5,7 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     tools:openDrawer="start">
 
     <!-- CONTENIDO PRINCIPAL -->
@@ -15,12 +15,11 @@
         android:background="@color/background_light"
         tools:context=".activities.MainActivity">
 
-        <!-- Toolbar Transparente SOLO para el botón de menú -->
+        <!-- Toolbar Transparente -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:layout_marginTop="24dp"
             android:background="@android:color/transparent"
             android:elevation="0dp"
             app:navigationIcon="@drawable/ic_menu"
@@ -420,7 +419,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
 

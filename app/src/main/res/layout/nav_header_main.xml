@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_header_container"
     android:layout_width="match_parent"
     android:layout_height="176dp"
     android:background="@color/primary_color"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    android:clickable="true"
+    android:focusable="true"
+    android:backgroundTint="@color/primary_color">
 
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/ic_shoppong" />
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_google_profile"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:padding="2dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_shoppong"
+        app:shapeAppearanceOverlay="@style/CircleImage"
+        app:strokeColor="@android:color/white"
+        app:strokeWidth="2dp" />
 
     <TextView
+        android:id="@+id/tv_google_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -22,5 +33,13 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/white"
         android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_google_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>

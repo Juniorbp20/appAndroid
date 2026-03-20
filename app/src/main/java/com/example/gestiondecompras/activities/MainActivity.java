@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,11 +19,14 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.adapters.PedidosAdapter;
 import com.example.gestiondecompras.databinding.ActivityMainBinding;
 import com.google.android.gms.ads.AdRequest;
 import com.example.gestiondecompras.viewmodels.DashboardViewModel;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import java.util.Calendar;
 import java.util.concurrent.Executor;
@@ -59,6 +64,33 @@ public class MainActivity extends AppCompatActivity {
         checkFirstRun();
         loadBannerAd();
         askNotificationPermission();
+        updateGoogleUserInfo();
+    }
+
+    private void updateGoogleUserInfo() {
+        View headerView = binding.navView.getHeaderView(0);
+        if (headerView == null) return;
+
+        ImageView ivProfile = headerView.findViewById(R.id.iv_google_profile);
+        TextView tvName = headerView.findViewById(R.id.tv_google_name);
+        TextView tvEmail = headerView.findViewById(R.id.tv_google_email);
+
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null) {
+            tvName.setText(account.getDisplayName());
+            tvEmail.setText(account.getEmail());
+            if (account.getPhotoUrl() != null) {
+                Glide.with(this)
+                        .load(account.getPhotoUrl())
+                        .placeholder(R.drawable.ic_shoppong)
+                        .circleCrop()
+                        .into(ivProfile);
+            }
+        } else {
+            tvName.setText(getString(R.string.app_name));
+            tvEmail.setText("Sin cuenta vinculada");
+            ivProfile.setImageResource(R.drawable.ic_shoppong);
+        }
     }
 
     private void askNotificationPermission() {
@@ -173,8 +205,6 @@ public class MainActivity extends AppCompatActivity {
         proximosAdapter = new PedidosAdapter(null);
         binding.rvProximosPedidos.setLayoutManager(new LinearLayoutManager(this));
         binding.rvProximosPedidos.setAdapter(proximosAdapter);
-        binding.rvProximosPedidos.setClickable(false);
-        binding.rvProximosPedidos.setFocusable(false);
     }
 
     private void setupClickListeners() {
@@ -271,12 +301,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        updateGoogleUserInfo();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         viewModel.loadDashboardData();
         if (binding.adView != null) {
             binding.adView.resume();
         }
+        updateGoogleUserInfo();
     }
 
     @Override

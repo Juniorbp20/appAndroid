@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Gesti\u00F3n de Compras</string>
+    <string name="app_name">Gestión de Compras</string>
     <string name="dashboard_greeting_morning">\u00A1Buenos d\u00EDas!</string>
     <string name="dashboard_greeting_afternoon">\u00A1Buenas tardes!</string>
     <string name="dashboard_greeting_evening">\u00A1Buenas noches!</string>
@@ -180,7 +180,7 @@
     <string name="ayuda_seguridad_title">5. Seguridad y Datos</string>
     <string name="ayuda_seguridad_desc">
 <b>Biometría:</b> Ve a Configuración para activar el bloqueo con huella dactilar.\n
-<b>Respaldo:</b> Usa "Crear Copia de Seguridad" para guardar tus datos en Google Drive o en tu teléfono. Si cambias de dispositivo, usa "Restaurar Copia" para recuperar tu información.
+<b>Google Drive:</b> Inicia sesión en Configuración para subir tu base de datos a la nube. Podrás restaurarla en cualquier momento o dispositivo usando la misma cuenta de Google.
 </string>
     <string name="creado_por">By Gustavo J. Bonifacio</string>
 </resources>

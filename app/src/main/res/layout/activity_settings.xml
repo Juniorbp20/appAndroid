@@ -127,34 +127,45 @@
                     android:background="?attr/selectableItemBackground" />
             </LinearLayout>
 
-            <!-- DATOS -->
+            <!-- GOOGLE DRIVE BACKUP -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/datos"
+                android:text="Copia de seguridad (Nube)"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_backup"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:id="@+id/btn_drive_backup"
+                style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/copia_seguridad" />
+                android:text="Subir a Google Drive"
+                app:icon="@drawable/ic_cloud_upload" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_restore"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:id="@+id/btn_drive_restore"
+                style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/restaurar_datos" />
+                android:text="Restaurar desde Google Drive"
+                app:icon="@drawable/ic_cloud_download" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_google_logout"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cerrar sesión de Google"
+                android:textColor="@color/dashboard_accent_negative" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_reset"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="@string/resetear_app"
                 android:textColor="@color/dashboard_accent_negative" />
 

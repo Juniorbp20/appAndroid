@@ -30,6 +30,8 @@ public class NuevoPedidoActivity extends AppCompatActivity {
     private Calendar fechaRegistro = Calendar.getInstance();
     private Calendar fechaEntrega = Calendar.getInstance();
     private long pedidoIdEdicion = 0;
+    private double originalMonto = 0; // Guardamos el monto original para ediciones
+    
     private final TextWatcher totalWatcher = new TextWatcher() {
         @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -151,13 +153,11 @@ public class NuevoPedidoActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle("Editar Pedido #" + pedido.getId());
                 binding.btnGuardar.setText("Actualizar Pedido");
                 
+                originalMonto = pedido.getMontoCompra(); // Guardar para validar cambios
                 binding.etMontoCompra.setText(String.valueOf(pedido.getMontoCompra()));
-                // Heuristic: If Ganancia == Total - Monto, assume fixed. 
-                // Actually Pedido doesn't store if it was fixed or percent directly, just the value and result.
-                // We'll calculate:
+                
                 binding.rbGananciaFija.setChecked(true); 
                 binding.etGanancia.setText(String.valueOf(pedido.getGanancia()));
-                
                 binding.etNotas.setText(pedido.getNotas());
                 
                 if (pedido.fechaRegistroEpoch != null) {
@@ -169,21 +169,6 @@ public class NuevoPedidoActivity extends AppCompatActivity {
                     binding.btnFechaEntrega.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fechaEntrega.getTime()));
                 }
                 
-                // Spinners Selection (Need to wait for lists to load? effectively yes. 
-                // We'll try to select if adapters are ready, else we rely on the observers in setupSpinners 
-                // but those might load after/before this. Ideally we sync.
-                // For simplicity, we delay selection or handle it in observers if needed, 
-                // but simpler here: Try to find index. If list not loaded yet, this might fail.
-                // Better approach: In observe(clientes), check if we have a pending selection.
-                
-                // Since this is complex to sync perfectly without changing architecture, 
-                // we'll run a delayed Selection or just set it here assuming fast LoadInitialData.
-                // Actually loadInitialData is async. 
-                // Let's modify the Observers in setupSpinners to respect pedidoIdEdicion selection if loaded.
-                // But we don't have the pedido loaded there.
-                
-                // Hack: We wait a bit or trigger updates again.
-                // Or better: save the IDs to select and call a helper.
                 selectSpinnerItem(binding.spinnerCliente, pedido.clienteId);
                 selectSpinnerItem(binding.spinnerTienda, pedido.tiendaId);
                 selectSpinnerItem(binding.spinnerTarjeta, pedido.tarjetaId);
@@ -191,17 +176,12 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         });
     }
 
-    // Generic helper for spinners with object items (that have Ids) is hard without reflection or interface. 
-    // We'll rely on equals/toString or just loop. 
-    // Assuming Models implement equals based on ID would be best, but default might not.
-    // Let's iterate.
     private void selectSpinnerItem(android.widget.Spinner spinner, Long id) {
         if (id == null) return;
         android.widget.Adapter adapter = spinner.getAdapter();
-        if (adapter == null) return; // Might happen if data not loaded yet.
+        if (adapter == null) return;
         for (int i = 0; i < adapter.getCount(); i++) {
              Object item = adapter.getItem(i);
-             // We cast to known types or check ID via methods
              if (item instanceof Cliente && ((Cliente)item).id == id) {
                  spinner.setSelection(i); return;
              }
@@ -237,62 +217,20 @@ public class NuevoPedidoActivity extends AppCompatActivity {
             monto = Double.parseDouble(montoTexto);
             ganancia = Double.parseDouble(gananciaTexto);
         } catch (NumberFormatException ex) {
-            Toast.makeText(this, "Verifica los valores numericos ingresados.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Verifica los valores numéricos.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // VALIDACIÓN INTELIGENTE DE LÍMITE DE TARJETA
+        double diferencia = (pedidoIdEdicion > 0) ? monto - originalMonto : monto;
+        if (tarjeta.getLimiteCredito() > 0 && (tarjeta.getDeudaActual() + diferencia) > tarjeta.getLimiteCredito()) {
+            Toast.makeText(this, "El monto de la compra supera el limite de la tarjeta.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         boolean isGananciaFija = binding.rbGananciaFija.isChecked();
         double totalGanancia = isGananciaFija ? ganancia : monto * (ganancia / 100);
         double totalGeneral = monto + totalGanancia;
-        binding.tvTotalGeneral.setText(getString(R.string.total_general_amount, totalGeneral));
-
-        if (tarjeta.getLimiteCredito() > 0 && (tarjeta.getDeudaActual() + monto) > tarjeta.getLimiteCredito()) {
-            Toast.makeText(this, "El monto de la compra supera el limite de la tarjeta.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String fechaVigencia = tarjeta.getFechaVencimiento();
-        if (fechaVigencia == null || fechaVigencia.trim().isEmpty()) {
-            Toast.makeText(this, "La tarjeta no tiene fecha de vencimiento.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String[] partes = fechaVigencia.split("[-/]");
-        if (partes.length != 2) {
-            Toast.makeText(this, "Formato de vencimiento invalido (usa MM-YY).", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int month;
-        int year;
-        try {
-            month = Integer.parseInt(partes[0]);
-            year = Integer.parseInt(partes[1]);
-        } catch (NumberFormatException ex) {
-            Toast.makeText(this, "Formato de vencimiento invalido (usa MM-YY).", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (month < 1 || month > 12) {
-            Toast.makeText(this, "Mes de vencimiento fuera de rango.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (year < 100) {
-            year += 2000;
-        }
-
-        Calendar expiryDate = Calendar.getInstance();
-        expiryDate.set(Calendar.YEAR, year);
-        expiryDate.set(Calendar.MONTH, month - 1);
-        expiryDate.set(Calendar.DAY_OF_MONTH, expiryDate.getActualMaximum(Calendar.DAY_OF_MONTH));
-        expiryDate.set(Calendar.HOUR_OF_DAY, 23);
-        expiryDate.set(Calendar.MINUTE, 59);
-        expiryDate.set(Calendar.SECOND, 59);
-        expiryDate.set(Calendar.MILLISECOND, 999);
-        if (expiryDate.before(Calendar.getInstance())) {
-            Toast.makeText(this, "La tarjeta esta vencida.", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         Pedido pedido = new Pedido();
         if (pedidoIdEdicion > 0) {
@@ -313,7 +251,7 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         pedido.estado = Pedido.ESTADO_PENDIENTE;
 
         viewModel.savePedido(pedido, tarjeta);
-        Toast.makeText(this, "Pedido guardado", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Pedido actualizado", Toast.LENGTH_SHORT).show();
         finish();
     }
 }

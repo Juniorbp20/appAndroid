@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="?android:attr/windowBackground">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#2196F3"
+        android:background="@color/primary_color"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:title="@string/ayuda_title"
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/ayuda_intro"
                 android:textSize="16sp"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="italic"
                 android:layout_marginBottom="24dp" />
 
@@ -43,14 +43,14 @@
                 android:text="@string/ayuda_clientes_title"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/primary_color"
                 android:layout_marginBottom="8dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ayuda_clientes_desc"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="24dp" />
 
             <!-- Pedidos -->
@@ -60,14 +60,14 @@
                 android:text="@string/ayuda_pedidos_title"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/primary_color"
                 android:layout_marginBottom="8dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ayuda_pedidos_desc"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="24dp" />
 
             <!-- Tarjetas -->
@@ -77,14 +77,14 @@
                 android:text="@string/ayuda_tarjetas_title"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/primary_color"
                 android:layout_marginBottom="8dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ayuda_tarjetas_desc"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="24dp" />
 
             <!-- Reportes -->
@@ -94,14 +94,14 @@
                 android:text="@string/ayuda_reportes_title"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/primary_color"
                 android:layout_marginBottom="8dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ayuda_reportes_desc"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="24dp" />
 
             <!-- Seguridad -->
@@ -111,14 +111,14 @@
                 android:text="@string/ayuda_seguridad_title"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/primary_color"
                 android:layout_marginBottom="8dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ayuda_seguridad_desc"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="24dp" />
 
         </LinearLayout>
@@ -138,6 +138,8 @@
             android:src="@drawable/ic_add"
             android:layout_marginBottom="16dp"
             app:fabSize="mini"
+            app:backgroundTint="@color/primary_color"
+            app:tint="@color/white"
             android:contentDescription="Zoom In" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -146,6 +148,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_remove"
             app:fabSize="mini"
+            app:backgroundTint="@color/primary_color"
+            app:tint="@color/white"
             android:contentDescription="Zoom Out" />
     </LinearLayout>
 

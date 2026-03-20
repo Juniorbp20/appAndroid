@@ -50,6 +50,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "GestionCompras.db")
                             .fallbackToDestructiveMigration()
+                            .setJournalMode(JournalMode.TRUNCATE) // Asegura que todo esté en el archivo .db
                             .addCallback(PREPOPULATE_CALLBACK)
                             .build();
                 }

@@ -1,8 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Colores base para eliminar el morado de Material 3 -->
     <color name="primary_color">#2196F3</color>
     <color name="primary_dark">#1976D2</color>
     <color name="primary_light">#BBDEFB</color>
+
+    <!-- Forzar colores de Material 3 para que no sean morados -->
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#D1E4FF</color>
+    <color name="colorOnPrimaryContainer">#001D36</color>
+    <color name="colorSecondary">#1E88E5</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSecondaryContainer">#D1E4FF</color>
+    <color name="colorOnSecondaryContainer">#001D36</color>
+    <color name="colorTertiary">#4CAF50</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
+    <color name="colorTertiaryContainer">#D0F0D0</color>
+    <color name="colorOnTertiaryContainer">#002204</color>
+    <color name="colorError">#F44336</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#F9DEDC</color>
+    <color name="colorOnErrorContainer">#410E0B</color>
+    <color name="colorOutline">#79747E</color>
+    <color name="colorSurface">#F5F7FB</color>
+    <color name="colorOnSurface">#1C1B1F</color>
+    <color name="colorSurfaceVariant">#E7E0EC</color>
+    <color name="colorOnSurfaceVariant">#49454F</color>
+
     <color name="success_color">#4CAF50</color>
     <color name="warning_color">#FF9800</color>
     <color name="error_color">#F44336</color>
@@ -19,7 +44,7 @@
     <color name="dashboard_card_income_stroke">#4CAF50</color>
     <color name="dashboard_card_secondary">#1E88E5</color>
     <color name="dashboard_card_orders">#1976D2</color>
-    <color name="dashboard_card_clients">#6A1B9A</color>
+    <color name="dashboard_card_clients">#1E88E5</color>
     <color name="dashboard_accent_positive">#388E3C</color>
     <color name="dashboard_accent_negative">#D32F2F</color>
 
@@ -29,9 +54,8 @@
     <color name="gray_medium">#9E9E9E</color>
     
     <!-- Status Colors -->
-    <color name="status_pending">#FFC107</color> <!-- Yellow for Pending -->
-    <color name="status_delivered">#2196F3</color> <!-- Blue for Delivered -->
-    <color name="status_paid">#4CAF50</color> <!-- Green for Paid -->
-    <color name="status_cancelled">#F44336</color> <!-- Red for Cancelled -->
+    <color name="status_pending">#FFC107</color>
+    <color name="status_delivered">#2196F3</color>
+    <color name="status_paid">#4CAF50</color>
+    <color name="status_cancelled">#F44336</color>
 </resources>
-
