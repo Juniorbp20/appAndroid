@@ -1,15 +1,14 @@
 package com.example.gestiondecompras.activities;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.databinding.ActivitySettingsBinding;
 import com.example.gestiondecompras.utils.GoogleDriveService;
 import com.example.gestiondecompras.database.AppDatabase;
@@ -80,6 +79,7 @@ public class SettingsActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
     }
 
+    @SuppressLint("SetTextI18n")
     private void loadSettings() {
         int theme = sharedPreferences.getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         if (theme == AppCompatDelegate.MODE_NIGHT_YES) binding.rbDark.setChecked(true);
@@ -104,18 +104,17 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("DefaultLocale")
     private void updateTimeText() {
         binding.tvReminderClockTime.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
     }
 
     private void setupListeners() {
-        binding.tvReminderClockTime.setOnClickListener(v -> {
-            new android.app.TimePickerDialog(this, (view, hourOfDay, minute) -> {
-                selectedHour = hourOfDay;
-                selectedMinute = minute;
-                updateTimeText();
-            }, selectedHour, selectedMinute, true).show();
-        });
+        binding.tvReminderClockTime.setOnClickListener(v -> new android.app.TimePickerDialog(this, (view, hourOfDay, minute) -> {
+            selectedHour = hourOfDay;
+            selectedMinute = minute;
+            updateTimeText();
+        }, selectedHour, selectedMinute, true).show());
 
         binding.btnReset.setOnClickListener(v -> showResetConfirmation());
         binding.btnContact.setOnClickListener(v -> contactSupport());
@@ -173,6 +172,7 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void updateGoogleLoginStatus() {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null) {

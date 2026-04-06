@@ -1,5 +1,6 @@
 package com.example.gestiondecompras.activities;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,13 +23,14 @@ import com.example.gestiondecompras.models.Tienda;
 import com.example.gestiondecompras.viewmodels.NuevoPedidoViewModel;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 public class NuevoPedidoActivity extends AppCompatActivity {
 
     private ActivityNuevoPedidoBinding binding;
     private NuevoPedidoViewModel viewModel;
-    private Calendar fechaRegistro = Calendar.getInstance();
-    private Calendar fechaEntrega = Calendar.getInstance();
+    private final Calendar fechaRegistro = Calendar.getInstance();
+    private final Calendar fechaEntrega = Calendar.getInstance();
     private long pedidoIdEdicion = 0;
     private double originalMonto = 0; // Guardamos el monto original para ediciones
     
@@ -63,7 +65,7 @@ public class NuevoPedidoActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(v -> finish());
     }
 
@@ -100,7 +102,7 @@ public class NuevoPedidoActivity extends AppCompatActivity {
     }
 
     private void showDatePickerDialog(Calendar calendar, View view) {
-        DatePickerDialog dialog = new DatePickerDialog(this,
+        @SuppressLint("DefaultLocale") DatePickerDialog dialog = new DatePickerDialog(this,
                 (datePicker, year, month, day) -> {
                     calendar.set(year, month, day);
                     ((android.widget.Button) view).setText(String.format("%d/%d/%d", day, month + 1, year));
@@ -147,10 +149,11 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint({"SetTextI18n", "SimpleDateFormat"})
     private void loadPedidoData(long id) {
         viewModel.getPedido(id).observe(this, pedido -> {
             if (pedido != null) {
-                getSupportActionBar().setTitle("Editar Pedido #" + pedido.getId());
+                Objects.requireNonNull(getSupportActionBar()).setTitle("Editar Pedido #" + pedido.getId());
                 binding.btnGuardar.setText("Actualizar Pedido");
                 
                 originalMonto = pedido.getMontoCompra(); // Guardar para validar cambios
@@ -204,8 +207,8 @@ public class NuevoPedidoActivity extends AppCompatActivity {
             return;
         }
 
-        String montoTexto = binding.etMontoCompra.getText().toString().trim();
-        String gananciaTexto = binding.etGanancia.getText().toString().trim();
+        String montoTexto = Objects.requireNonNull(binding.etMontoCompra.getText()).toString().trim();
+        String gananciaTexto = Objects.requireNonNull(binding.etGanancia.getText()).toString().trim();
         if (montoTexto.isEmpty() || gananciaTexto.isEmpty()) {
             Toast.makeText(this, "Completa monto de compra y ganancia.", Toast.LENGTH_SHORT).show();
             return;
@@ -247,7 +250,7 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         pedido.totalGeneral = totalGeneral;
         pedido.fechaRegistroEpoch = fechaRegistro.getTimeInMillis();
         pedido.fechaEntregaEpoch = fechaEntrega.getTimeInMillis();
-        pedido.notas = binding.etNotas.getText().toString();
+        pedido.notas = Objects.requireNonNull(binding.etNotas.getText()).toString();
         pedido.estado = Pedido.ESTADO_PENDIENTE;
 
         viewModel.savePedido(pedido, tarjeta);

@@ -180,7 +180,7 @@
     <string name="ayuda_seguridad_title">5. Seguridad y Datos</string>
     <string name="ayuda_seguridad_desc">
 <b>Biometría:</b> Ve a Configuración para activar el bloqueo con huella dactilar.\n
-<b>Google Drive:</b> Inicia sesión en Configuración para subir tu base de datos a la nube. Podrás restaurarla en cualquier momento o dispositivo usando la misma cuenta de Google.
+<b>Google Drive:</b> Inicia sesión en Configuración para subir tu base de datos a la nube. Podrás restaurarla en cualquier memento o dispositivo usando la misma cuenta de Google.
 </string>
     <string name="creado_por">By Gustavo J. Bonifacio</string>
 </resources>

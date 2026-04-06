@@ -1,9 +1,9 @@
 package com.example.gestiondecompras.database;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.RoomDatabase.Callback;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.gestiondecompras.daos.ClienteDao;
@@ -32,7 +32,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private static final Callback PREPOPULATE_CALLBACK = new Callback() {
         @Override
-        public void onCreate(SupportSQLiteDatabase db) {
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
             db.execSQL("INSERT INTO tiendas (nombre) VALUES ('Temu')");
             db.execSQL("INSERT INTO tiendas (nombre) VALUES ('Shein')");
