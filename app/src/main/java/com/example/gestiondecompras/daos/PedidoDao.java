@@ -31,6 +31,12 @@ public interface PedidoDao {
     @Query("SELECT * FROM pedidos WHERE date(fecha_registro_epoch/1000,'unixepoch')=date(:epoch/1000,'unixepoch') ORDER BY fecha_registro_epoch ASC")
     List<Pedido> pedidosPorDia(long epoch);
 
+    @Query("SELECT * FROM pedidos WHERE fecha_entrega IS NOT NULL AND date(fecha_entrega/1000,'unixepoch')=date(:epoch/1000,'unixepoch') ORDER BY fecha_entrega ASC")
+    List<Pedido> getEntregasPorDia(long epoch);
+
+    @Query("SELECT * FROM pedidos WHERE date(fecha_registro_epoch/1000,'unixepoch')=date(:epoch/1000,'unixepoch') AND (:busqueda = '' OR cliente_nombre LIKE '%' || :busqueda || '%') ORDER BY fecha_registro_epoch ASC")
+    List<Pedido> pedidosPorDiaYCliente(long epoch, String busqueda);
+
     @Query("SELECT * FROM pedidos WHERE (:estado = '' OR estado = :estado) ORDER BY fecha_registro_epoch DESC")
     List<Pedido> findByEstado(String estado);
 
@@ -51,6 +57,20 @@ public interface PedidoDao {
 
     @Query("SELECT * FROM pedidos WHERE fecha_entrega IS NOT NULL AND fecha_entrega >= :fromEpoch ORDER BY fecha_entrega ASC LIMIT :limit")
     List<Pedido> getProximosPedidos(long fromEpoch, int limit);
+
+    @Query("SELECT * FROM pedidos WHERE estado != 'pagado' AND estado != 'cancelado' " +
+           "AND (:desde IS NULL OR fecha_registro_epoch >= :desde) " +
+           "AND (:hasta IS NULL OR fecha_registro_epoch <= :hasta) " +
+           "AND (:busqueda = '' OR cliente_nombre LIKE '%' || :busqueda || '%') " +
+           "ORDER BY fecha_registro_epoch DESC")
+    List<Pedido> getPedidosPorCobrar(Long desde, Long hasta, String busqueda);
+
+    @Query("SELECT * FROM pedidos WHERE estado = 'pagado' " +
+           "AND (:desde IS NULL OR fecha_registro_epoch >= :desde) " +
+           "AND (:hasta IS NULL OR fecha_registro_epoch <= :hasta) " +
+           "AND (:busqueda = '' OR cliente_nombre LIKE '%' || :busqueda || '%') " +
+           "ORDER BY fecha_registro_epoch DESC")
+    List<Pedido> getPedidosPagadosFiltrados(Long desde, Long hasta, String busqueda);
 
     @Query("SELECT * FROM pedidos WHERE estado = 'pagado' ORDER BY fecha_registro_epoch DESC")
     List<Pedido> getPedidosPagados();

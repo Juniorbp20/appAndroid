@@ -255,6 +255,13 @@ public class SettingsActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("theme", theme);
         editor.putBoolean("biometric_enabled", binding.swBiometric.isChecked());
+        try {
+            int reminderTime = Integer.parseInt(String.valueOf(binding.etReminderTime.getText()));
+            editor.putInt("reminder_time", reminderTime);
+        } catch (NumberFormatException ignored) {
+        }
+        editor.putInt("reminder_hour", selectedHour);
+        editor.putInt("reminder_minute", selectedMinute);
         editor.apply();
 
         Toast.makeText(this, "Configuración guardada", Toast.LENGTH_SHORT).show();

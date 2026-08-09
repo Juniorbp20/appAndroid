@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary_color">#1E88E5</color>
-    <color name="primary_dark">#1565C0</color>
-    <color name="primary_light">#90CAF9</color>
+    <color name="primary_dark">#64B5F6</color>
+    <color name="primary_light">#1E3A5F</color>
     <color name="success_color">#66BB6A</color>
     <color name="warning_color">#FFB74D</color>
     <color name="error_color">#EF5350</color>
@@ -10,16 +10,47 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#B0BEC5</color>
-    <color name="gray_light">#CFD8DC</color>
+    <color name="gray_light">#546E7A</color>
     <color name="gray_dark">#ECEFF1</color>
+    <color name="gray_medium">#90A4AE</color>
     <color name="background_light">#121212</color>
     <color name="background_card">#1E1E1E</color>
-    <color name="dashboard_card_income">#2E7D32</color>
+    <color name="card_stroke">#2A2A33</color>
+
+    <color name="colorSurface">#1E1E1E</color>
+    <color name="colorOnSurface">#E6E6EA</color>
+    <color name="colorSurfaceVariant">#2A2A33</color>
+    <color name="colorOnSurfaceVariant">#C9CDD4</color>
+    <color name="colorOutline">#8A8F99</color>
+    <color name="colorPrimaryContainer">#1E3A5F</color>
+    <color name="colorOnPrimaryContainer">#D6E9FF</color>
+    <color name="colorSecondaryContainer">#1E3A5F</color>
+    <color name="colorOnSecondaryContainer">#D6E9FF</color>
+    <color name="colorErrorContainer">#3A1E24</color>
+    <color name="colorOnErrorContainer">#FFDAD6</color>
+    <color name="colorTertiaryContainer">#1B3A24</color>
+    <color name="colorOnTertiaryContainer">#C8F5CB</color>
+
+    <color name="dashboard_badge_blue_bg">#1E3A5F</color>
+    <color name="dashboard_badge_green_bg">#1B3A24</color>
+    <color name="dashboard_badge_red_bg">#3A1E24</color>
+    <color name="dashboard_trend_bg">#1B3A24</color>
+    <color name="drawer_gradient_end">#0D47A1</color>
+
+    <color name="dashboard_card_income">#81C784</color>
     <color name="dashboard_card_income_stroke">#4CAF50</color>
-    <color name="dashboard_card_orders">#1565C0</color>
-    <color name="dashboard_card_clients">#6A1B9A</color>
-    <color name="dashboard_card_secondary">#37474F</color>
-    <color name="dashboard_accent_positive">#388E3C</color>
-    <color name="dashboard_accent_negative">#D32F2F</color>
+    <color name="dashboard_card_secondary">#1E88E5</color>
+    <color name="dashboard_card_orders">#64B5F6</color>
+    <color name="dashboard_card_clients">#1E88E5</color>
+    <color name="dashboard_accent_positive">#66BB6A</color>
+    <color name="dashboard_accent_negative">#EF5350</color>
+
     <color name="ic_launcher_background">#121212</color>
+    <color name="dashboard_card_overdue">#EF5350</color>
+    <color name="dashboard_card_earnings">#66BB6A</color>
+
+    <color name="status_pending">#FFC107</color>
+    <color name="status_delivered">#64B5F6</color>
+    <color name="status_paid">#66BB6A</color>
+    <color name="status_cancelled">#EF5350</color>
 </resources>

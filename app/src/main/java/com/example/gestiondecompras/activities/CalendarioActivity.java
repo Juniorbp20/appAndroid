@@ -1,6 +1,7 @@
 package com.example.gestiondecompras.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,10 +43,25 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
 
         setupCalendar();
         setupRecyclerView();
+        setupSearch();
         observeViewModel();
 
         binding.tvFechaSeleccionada.setText("Hoy: " + df.format(new Date()));
-        viewModel.loadPedidos(new Date().getTime());
+        viewModel.loadPedidos(new Date().getTime(), "");
+    }
+
+    private void setupSearch() {
+        binding.etBuscarCliente.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { reloadDay(); }
+            @Override public void afterTextChanged(android.text.Editable s) {}
+        });
+    }
+
+    private void reloadDay() {
+        String busqueda = binding.etBuscarCliente.getText() != null
+                ? binding.etBuscarCliente.getText().toString().trim() : "";
+        viewModel.loadPedidos(binding.calendarView.getDate(), busqueda);
     }
 
     private void setupCalendar() {
@@ -54,7 +70,8 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
             c.set(y, m, d, 0, 0, 0);
             Date sel = c.getTime();
             binding.tvFechaSeleccionada.setText(df.format(sel));
-            viewModel.loadPedidos(sel.getTime());
+            viewModel.loadPedidos(sel.getTime(), binding.etBuscarCliente.getText() != null
+                    ? binding.etBuscarCliente.getText().toString().trim() : "");
         });
     }
 
@@ -84,17 +101,16 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
         
         android.widget.TextView tvProducto = view.findViewById(R.id.tv_detalle_producto);
         android.widget.TextView tvTienda = view.findViewById(R.id.tv_detalle_tienda);
-        android.widget.TextView tvTracking = view.findViewById(R.id.tv_detalle_tracking);
         android.widget.TextView tvFechaCompra = view.findViewById(R.id.tv_detalle_fecha_compra);
         android.widget.TextView tvFechaEntrega = view.findViewById(R.id.tv_detalle_fecha_entrega);
         android.widget.TextView tvCosto = view.findViewById(R.id.tv_detalle_costo);
         android.widget.TextView tvVenta = view.findViewById(R.id.tv_detalle_venta);
         android.widget.TextView tvGanancia = view.findViewById(R.id.tv_detalle_ganancia);
         android.widget.TextView tvEstado = view.findViewById(R.id.tv_detalle_estado);
+        com.google.android.material.button.MaterialButton btnEnviar = view.findViewById(R.id.btn_enviar_resumen);
         
-        tvProducto.setText("Cliente: " + pedido.getClienteNombre());
+        tvProducto.setText(pedido.getClienteNombre());
         tvTienda.setText(pedido.getTienda());
-        tvTracking.setText("N/A");
         
         tvFechaCompra.setText(pedido.getFechaRegistro() != null ? df.format(pedido.getFechaRegistro()) : "N/A");
         tvFechaEntrega.setText(pedido.getFechaEntrega() != null ? df.format(pedido.getFechaEntrega()) : "N/A");
@@ -121,9 +137,32 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
         ));
         tvEstado.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
         
+        btnEnviar.setOnClickListener(v -> enviarResumenCliente(pedido));
+
         builder.setView(view)
                .setPositiveButton("Cerrar", null)
                .show();
+    }
+
+    private void enviarResumenCliente(com.example.gestiondecompras.models.Pedido pedido) {
+        String fechaRegistro = pedido.getFechaRegistro() != null ? df.format(pedido.getFechaRegistro()) : "N/A";
+        String fechaEntrega = pedido.getFechaEntrega() != null ? df.format(pedido.getFechaEntrega()) : "N/A";
+
+        String mensaje = "*Resumen del Pedido*\n\n"
+                + getString(R.string.pedido_detalle_cliente) + ": " + pedido.getClienteNombre() + "\n"
+                + getString(R.string.pedido_detalle_tienda) + ": " + pedido.getTienda() + "\n"
+                + getString(R.string.pedido_detalle_fecha_compra) + ": " + fechaRegistro + "\n"
+                + getString(R.string.pedido_detalle_fecha_entrega) + ": " + fechaEntrega + "\n"
+                + getString(R.string.pedido_detalle_costo) + ": RD$ " + String.format(Locale.getDefault(), "%,.2f", pedido.getMontoCompra()) + "\n"
+                + getString(R.string.pedido_detalle_venta) + ": RD$ " + String.format(Locale.getDefault(), "%,.2f", pedido.getTotalGeneral()) + "\n"
+                + getString(R.string.pedido_detalle_ganancia) + ": RD$ " + String.format(Locale.getDefault(), "%,.2f", pedido.getGanancia()) + "\n"
+                + "Estado: " + pedido.getEstado();
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.pedido_share_subject, pedido.getClienteNombre()));
+        intent.putExtra(Intent.EXTRA_TEXT, mensaje);
+        startActivity(Intent.createChooser(intent, getString(R.string.pedido_enviar_resumen)));
     }
 
     @Override

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.gestiondecompras.views.GestureDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
@@ -12,7 +12,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background_light"
+        android:background="@color/background_card"
         tools:context=".activities.MainActivity">
 
         <!-- Toolbar Transparente -->
@@ -46,13 +46,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@android:color/transparent"
-                    app:cardElevation="0dp">
+                    app:cardBackgroundColor="@color/background_card"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/card_stroke"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_dashboard_hero"
                         android:orientation="vertical"
                         android:padding="24dp">
 
@@ -61,7 +63,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/dashboard_greeting_placeholder"
-                            android:textColor="@color/white"
+                            android:textColor="@color/gray_dark"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             tools:text="Hola, Gustavo" />
@@ -72,17 +74,17 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/dashboard_subtitle"
-                            android:textColor="@color/white"
+                            android:textColor="@color/gray"
                             android:textSize="14sp"
                             tools:text="Resumen del día" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="20dp"
                             android:text="@string/total_pendiente"
-                            android:textColor="@color/white"
-                            android:textSize="14sp" />
+                            android:textColor="@color/gray"
+                            android:textSize="13sp" />
 
                         <TextView
                             android:id="@+id/tvTotalPendiente"
@@ -90,22 +92,22 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="RD$ 0.00"
-                            android:textColor="@color/white"
-                            android:textSize="26sp"
+                            android:textColor="@color/primary_color"
+                            android:textSize="28sp"
                             android:textStyle="bold"
                             tools:text="RD$ 12,500.00" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipTrend"
-                            style="@style/Widget.Material3.Chip.Assist.Elevated"
+                            style="@style/Widget.Material3.Chip.Assist"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
                             android:text="@string/dashboard_trend_placeholder"
-                            android:textColor="@color/white"
-                            app:chipBackgroundColor="@color/dashboard_accent_positive"
+                            android:textColor="@color/dashboard_card_income"
+                            app:chipBackgroundColor="@color/dashboard_trend_bg"
                             app:chipIcon="@drawable/ic_trending_up"
-                            app:chipIconTint="@color/white"
+                            app:chipIconTint="@color/dashboard_card_income"
                             app:chipStrokeColor="@android:color/transparent"
                             tools:text="Subió RD$ 2,100" />
                     </LinearLayout>
@@ -124,9 +126,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        app:cardBackgroundColor="@color/dashboard_card_income"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/background_card"
                         app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/card_stroke"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -134,21 +139,30 @@
                             android:orientation="vertical"
                             android:padding="16dp">
 
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_icon_badge_blue"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_list"
+                                android:tint="@color/primary_color" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
                                 android:text="@string/total_pendiente"
-                                android:textColor="@color/white"
-                                android:textSize="14sp" />
+                                android:textColor="@color/gray"
+                                android:textSize="13sp" />
 
                             <TextView
                                 android:id="@+id/tvTotalPendienteCard"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="6dp"
                                 android:text="RD$ 0.00"
-                                android:textColor="@color/white"
-                                android:textSize="20sp"
+                                android:textColor="@color/gray_dark"
+                                android:textSize="18sp"
                                 android:textStyle="bold"
                                 tools:text="RD$ 12,500.00" />
                         </LinearLayout>
@@ -160,9 +174,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        app:cardBackgroundColor="@color/dashboard_card_secondary"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/background_card"
                         app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/card_stroke"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -170,21 +187,30 @@
                             android:orientation="vertical"
                             android:padding="16dp">
 
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_icon_badge_green"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_credit_card"
+                                android:tint="@color/success_color" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
                                 android:text="Total pagado"
-                                android:textColor="@color/white"
-                                android:textSize="14sp" />
+                                android:textColor="@color/gray"
+                                android:textSize="13sp" />
 
                             <TextView
                                 android:id="@+id/tvTotalPagado"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="6dp"
                                 android:text="RD$ 0.00"
-                                android:textColor="@color/white"
-                                android:textSize="20sp"
+                                android:textColor="@color/gray_dark"
+                                android:textSize="18sp"
                                 android:textStyle="bold"
                                 tools:text="RD$ 5,900.00" />
                         </LinearLayout>
@@ -204,9 +230,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        app:cardBackgroundColor="@color/dashboard_card_overdue"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/background_card"
                         app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/card_stroke"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -214,21 +243,30 @@
                             android:orientation="vertical"
                             android:padding="16dp">
 
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_icon_badge_red"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_trending_down"
+                                android:tint="@color/error_color" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
                                 android:text="@string/pedidos_atrasados"
-                                android:textColor="@color/white"
-                                android:textSize="14sp" />
+                                android:textColor="@color/gray"
+                                android:textSize="13sp" />
 
                             <TextView
                                 android:id="@+id/tvPedidosAtrasados"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="6dp"
                                 android:text="0"
-                                android:textColor="@color/white"
-                                android:textSize="20sp"
+                                android:textColor="@color/gray_dark"
+                                android:textSize="18sp"
                                 android:textStyle="bold"
                                 tools:text="2" />
                         </LinearLayout>
@@ -240,9 +278,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        app:cardBackgroundColor="@color/dashboard_card_earnings"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/background_card"
                         app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="1dp"
+                        app:strokeColor="@color/card_stroke"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -250,26 +291,91 @@
                             android:orientation="vertical"
                             android:padding="16dp">
 
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_icon_badge_green"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_trending_up"
+                                android:tint="@color/dashboard_card_income" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
                                 android:text="@string/ganancia_esperada"
-                                android:textColor="@color/white"
-                                android:textSize="14sp" />
+                                android:textColor="@color/gray"
+                                android:textSize="13sp" />
 
                             <TextView
                                 android:id="@+id/tvGananciaEsperadaCard"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="6dp"
                                 android:text="RD$ 0.00"
-                                android:textColor="@color/white"
-                                android:textSize="20sp"
+                                android:textColor="@color/gray_dark"
+                                android:textSize="18sp"
                                 android:textStyle="bold"
                                 tools:text="RD$ 5,900.00" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
+
+                <!-- GASTOS DEL MES -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardGastosMes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/background_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/card_stroke"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_icon_badge_red"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_wallet"
+                            android:tint="@color/error_color" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gastos_dashboard_title"
+                                android:textColor="@color/gray"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvGastosMes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="RD$ 0.00"
+                                android:textColor="@color/error_color"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                tools:text="RD$ 5,900.00" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- ACCIONES RÁPIDAS -->
                 <TextView
@@ -278,73 +384,258 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:text="@string/acciones_rapidas"
-                    android:textColor="@color/primary_dark"
+                    android:textColor="@color/gray_dark"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <com.google.android.material.chip.ChipGroup
+                <HorizontalScrollView
                     android:id="@+id/chipGroupActions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    app:chipSpacingHorizontal="8dp"
-                    app:chipSpacingVertical="8dp"
-                    app:singleLine="false">
+                    android:overScrollMode="never"
+                    android:scrollbars="none">
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipNuevoPedido"
-                        style="@style/Widget.Material3.Chip.Assist.Elevated"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/nuevo_pedido"
-                        app:chipIcon="@drawable/ic_add_circle"
-                        app:chipIconTint="@color/primary_color" />
+                        android:orientation="horizontal"
+                        android:paddingEnd="8dp">
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipListaPedidos"
-                        style="@style/Widget.Material3.Chip.Assist.Elevated"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ver_pedidos"
-                        app:chipIcon="@drawable/ic_list"
-                        app:chipIconTint="@color/primary_color" />
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/chipNuevoPedido"
+                            android:layout_width="100dp"
+                            android:layout_height="110dp"
+                            android:layout_marginEnd="12dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/background_card"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/card_stroke"
+                            app:strokeWidth="1dp">
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipCalendario"
-                        style="@style/Widget.Material3.Chip.Assist.Elevated"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/calendario"
-                        app:chipIcon="@drawable/ic_calendar"
-                        app:chipIconTint="@color/primary_color" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="10dp">
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipClientes"
-                        style="@style/Widget.Material3.Chip.Assist.Elevated"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/clientes"
-                        app:chipIcon="@drawable/ic_people"
-                        app:chipIconTint="@color/primary_color" />
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/bg_icon_badge_blue"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_add_circle"
+                                    android:tint="@color/primary_color" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipReportes"
-                        style="@style/Widget.Material3.Chip.Assist.Elevated"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dashboard_reports"
-                        app:chipIcon="@drawable/ic_trending_up"
-                        app:chipIconTint="@color/primary_color" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:gravity="center"
+                                    android:text="@string/nuevo_pedido"
+                                    android:textColor="@color/gray_dark"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipTarjetas"
-                        style="@style/Widget.Material3.Chip.Assist.Elevated"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/tarjeta"
-                        app:chipIcon="@drawable/ic_credit_card"
-                        app:chipIconTint="@color/primary_color" />
-                </com.google.android.material.chip.ChipGroup>
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/chipListaPedidos"
+                            android:layout_width="100dp"
+                            android:layout_height="110dp"
+                            android:layout_marginEnd="12dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/background_card"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/card_stroke"
+                            app:strokeWidth="1dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="10dp">
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/bg_icon_badge_blue"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_list"
+                                    android:tint="@color/primary_color" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:gravity="center"
+                                    android:text="@string/ver_pedidos"
+                                    android:textColor="@color/gray_dark"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/chipCalendario"
+                            android:layout_width="100dp"
+                            android:layout_height="110dp"
+                            android:layout_marginEnd="12dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/background_card"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/card_stroke"
+                            app:strokeWidth="1dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="10dp">
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/bg_icon_badge_blue"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_calendar"
+                                    android:tint="@color/primary_color" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:gravity="center"
+                                    android:text="@string/calendario"
+                                    android:textColor="@color/gray_dark"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/chipClientes"
+                            android:layout_width="100dp"
+                            android:layout_height="110dp"
+                            android:layout_marginEnd="12dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/background_card"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/card_stroke"
+                            app:strokeWidth="1dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="10dp">
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/bg_icon_badge_blue"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_people"
+                                    android:tint="@color/primary_color" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:gravity="center"
+                                    android:text="@string/clientes"
+                                    android:textColor="@color/gray_dark"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/chipReportes"
+                            android:layout_width="100dp"
+                            android:layout_height="110dp"
+                            android:layout_marginEnd="12dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/background_card"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/card_stroke"
+                            app:strokeWidth="1dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="10dp">
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/bg_icon_badge_blue"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_trending_up"
+                                    android:tint="@color/primary_color" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:gravity="center"
+                                    android:text="@string/dashboard_reports"
+                                    android:textColor="@color/gray_dark"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/chipTarjetas"
+                            android:layout_width="100dp"
+                            android:layout_height="110dp"
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@color/background_card"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="1dp"
+                            app:strokeColor="@color/card_stroke"
+                            app:strokeWidth="1dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="10dp">
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/bg_icon_badge_blue"
+                                    android:padding="12dp"
+                                    android:src="@drawable/ic_credit_card"
+                                    android:tint="@color/primary_color" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:gravity="center"
+                                    android:text="@string/tarjeta"
+                                    android:textColor="@color/gray_dark"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </HorizontalScrollView>
 
                 <!-- LISTA DE PRÓXIMOS PEDIDOS -->
                 <TextView
@@ -420,7 +711,17 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="false"
+        android:background="@color/background_card"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        app:itemHorizontalPadding="20dp"
+        app:itemIconPadding="16dp"
+        app:itemIconTint="@color/nav_item_icon"
+        app:itemShapeFillColor="@color/nav_item_shape"
+        app:itemTextAppearance="@style/TextAppearance.NavItem"
+        app:itemTextColor="@color/nav_item_text"
+        app:itemVerticalPadding="8dp"
+        app:menu="@menu/activity_main_drawer"
+        app:subheaderColor="@color/gray"
+        app:subheaderTextAppearance="@style/TextAppearance.NavSubheader" />
 
-</androidx.drawerlayout.widget.DrawerLayout>
+</com.example.gestiondecompras.views.GestureDrawerLayout>

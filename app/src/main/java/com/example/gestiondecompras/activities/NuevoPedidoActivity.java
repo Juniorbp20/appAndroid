@@ -33,6 +33,9 @@ public class NuevoPedidoActivity extends AppCompatActivity {
     private final Calendar fechaEntrega = Calendar.getInstance();
     private long pedidoIdEdicion = 0;
     private double originalMonto = 0; // Guardamos el monto original para ediciones
+    private Cliente selectedCliente;
+    private Tienda selectedTienda;
+    private Tarjeta selectedTarjeta;
     
     private final TextWatcher totalWatcher = new TextWatcher() {
         @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -72,40 +75,48 @@ public class NuevoPedidoActivity extends AppCompatActivity {
     private void setupSpinners() {
         viewModel.getClientes().observe(this, clientes -> {
             if (clientes != null) {
-                ArrayAdapter<Cliente> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, clientes);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                ArrayAdapter<Cliente> adapter = new ArrayAdapter<>(this, R.layout.item_dropdown, clientes);
                 binding.spinnerCliente.setAdapter(adapter);
             }
         });
 
         viewModel.getTiendas().observe(this, tiendas -> {
             if (tiendas != null) {
-                ArrayAdapter<Tienda> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tiendas);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                ArrayAdapter<Tienda> adapter = new ArrayAdapter<>(this, R.layout.item_dropdown, tiendas);
                 binding.spinnerTienda.setAdapter(adapter);
             }
         });
 
         viewModel.getTarjetas().observe(this, tarjetas -> {
             if (tarjetas != null) {
-                ArrayAdapter<Tarjeta> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tarjetas);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                ArrayAdapter<Tarjeta> adapter = new ArrayAdapter<>(this, R.layout.item_dropdown, tarjetas);
                 binding.spinnerTarjeta.setAdapter(adapter);
             }
         });
+
+        binding.spinnerCliente.setOnItemClickListener((parent, view, position, id) ->
+                selectedCliente = (Cliente) parent.getItemAtPosition(position));
+        binding.spinnerTienda.setOnItemClickListener((parent, view, position, id) ->
+                selectedTienda = (Tienda) parent.getItemAtPosition(position));
+        binding.spinnerTarjeta.setOnItemClickListener((parent, view, position, id) ->
+                selectedTarjeta = (Tarjeta) parent.getItemAtPosition(position));
     }
 
     private void setupDatePickers() {
-        binding.btnFechaRegistro.setOnClickListener(v -> showDatePickerDialog(fechaRegistro, binding.btnFechaRegistro));
-        binding.btnFechaEntrega.setOnClickListener(v -> showDatePickerDialog(fechaEntrega, binding.btnFechaEntrega));
+        binding.btnFechaRegistro.setOnClickListener(v -> showDatePickerDialog(fechaRegistro, binding.etFechaRegistro));
+        binding.btnFechaRegistro.setEndIconOnClickListener(v -> showDatePickerDialog(fechaRegistro, binding.etFechaRegistro));
+        binding.etFechaRegistro.setOnClickListener(v -> showDatePickerDialog(fechaRegistro, binding.etFechaRegistro));
+        binding.btnFechaEntrega.setOnClickListener(v -> showDatePickerDialog(fechaEntrega, binding.etFechaEntrega));
+        binding.btnFechaEntrega.setEndIconOnClickListener(v -> showDatePickerDialog(fechaEntrega, binding.etFechaEntrega));
+        binding.etFechaEntrega.setOnClickListener(v -> showDatePickerDialog(fechaEntrega, binding.etFechaEntrega));
         binding.btnNuevaTarjeta.setOnClickListener(v -> startActivity(new Intent(this, NuevaTarjetaActivity.class)));
     }
 
-    private void showDatePickerDialog(Calendar calendar, View view) {
+    private void showDatePickerDialog(Calendar calendar, androidx.appcompat.widget.AppCompatEditText field) {
         @SuppressLint("DefaultLocale") DatePickerDialog dialog = new DatePickerDialog(this,
                 (datePicker, year, month, day) -> {
                     calendar.set(year, month, day);
-                    ((android.widget.Button) view).setText(String.format("%d/%d/%d", day, month + 1, year));
+                    field.setText(String.format("%d/%d/%d", day, month + 1, year));
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -123,7 +134,7 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         }
         binding.etMontoCompra.addTextChangedListener(totalWatcher);
         binding.etGanancia.addTextChangedListener(totalWatcher);
-        binding.rgGanancia.setOnCheckedChangeListener((group, checkedId) -> updateTotalGeneral());
+        binding.rgGanancia.addOnButtonCheckedListener((group, checkedId, isChecked) -> updateTotalGeneral());
     }
 
     private void updateTotalGeneral() {
@@ -165,42 +176,48 @@ public class NuevoPedidoActivity extends AppCompatActivity {
                 
                 if (pedido.fechaRegistroEpoch != null) {
                     fechaRegistro.setTimeInMillis(pedido.fechaRegistroEpoch);
-                    binding.btnFechaRegistro.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fechaRegistro.getTime()));
+                    binding.etFechaRegistro.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fechaRegistro.getTime()));
                 }
                  if (pedido.fechaEntregaEpoch != null) {
                     fechaEntrega.setTimeInMillis(pedido.fechaEntregaEpoch);
-                    binding.btnFechaEntrega.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fechaEntrega.getTime()));
+                    binding.etFechaEntrega.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fechaEntrega.getTime()));
                 }
                 
-                selectSpinnerItem(binding.spinnerCliente, pedido.clienteId);
-                selectSpinnerItem(binding.spinnerTienda, pedido.tiendaId);
-                selectSpinnerItem(binding.spinnerTarjeta, pedido.tarjetaId);
+                selectDropdownItem(binding.spinnerCliente, pedido.clienteId);
+                selectDropdownItem(binding.spinnerTienda, pedido.tiendaId);
+                selectDropdownItem(binding.spinnerTarjeta, pedido.tarjetaId);
             }
         });
     }
 
-    private void selectSpinnerItem(android.widget.Spinner spinner, Long id) {
+    private void selectDropdownItem(android.widget.AutoCompleteTextView field, Long id) {
         if (id == null) return;
-        android.widget.Adapter adapter = spinner.getAdapter();
+        android.widget.ListAdapter adapter = field.getAdapter();
         if (adapter == null) return;
         for (int i = 0; i < adapter.getCount(); i++) {
              Object item = adapter.getItem(i);
              if (item instanceof Cliente && ((Cliente)item).id == id) {
-                 spinner.setSelection(i); return;
+                 field.setText(item.toString(), false);
+                 selectedCliente = (Cliente) item;
+                 return;
              }
              if (item instanceof Tienda && ((Tienda)item).id == id) {
-                 spinner.setSelection(i); return;
+                 field.setText(item.toString(), false);
+                 selectedTienda = (Tienda) item;
+                 return;
              }
              if (item instanceof Tarjeta && ((Tarjeta)item).id == id) {
-                 spinner.setSelection(i); return;
+                 field.setText(item.toString(), false);
+                 selectedTarjeta = (Tarjeta) item;
+                 return;
              }
         }
     }
 
     private void savePedido() {
-        Cliente cliente = (Cliente) binding.spinnerCliente.getSelectedItem();
-        Tienda tienda = (Tienda) binding.spinnerTienda.getSelectedItem();
-        Tarjeta tarjeta = (Tarjeta) binding.spinnerTarjeta.getSelectedItem();
+        Cliente cliente = selectedCliente;
+        Tienda tienda = selectedTienda;
+        Tarjeta tarjeta = selectedTarjeta;
 
         if (cliente == null || tienda == null || tarjeta == null) {
             Toast.makeText(this, "Selecciona cliente, tienda y tarjeta.", Toast.LENGTH_SHORT).show();

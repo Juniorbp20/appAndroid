@@ -97,7 +97,7 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
 
     private void setupFilters() {
         binding.spinnerFiltroEstado.setAdapter(
-                new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, estados)
+                new ArrayAdapter<>(this, R.layout.item_dropdown, estados)
         );
 
         int selection = 0; // Default: Todos
@@ -115,26 +115,12 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
                 }
             }
         } else {
-            // Default logic if no extra? previously "Pendientes".
-            // If user opens List manually, maybe show all or sticky?
-            // User requested "Ver pedidos" -> All?
-            // Previous code had: setSelection(1) -> Pendientes.
-            // Let's default to Todos (0) now? Or stick to Pendientes (2)?
-            // New "Ver Pedidos" button likely implies All or Pendientes.
-            // Let's set default to 0 (Todos) unless specified.
-            // Or maybe 2 (Pendientes) is safer for daily use.
-            // Let's select 0 (Todos) to be neutral.
             selection = 0;
         }
 
-        binding.spinnerFiltroEstado.setSelection(selection);
+        binding.spinnerFiltroEstado.setText(estados[selection], false);
 
-        binding.spinnerFiltroEstado.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                cargarPedidos();
-            }
-            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
-        });
+        binding.spinnerFiltroEstado.setOnItemClickListener((parent, view, position, id) -> cargarPedidos());
 
         binding.etBuscar.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -153,13 +139,14 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         viewModel.getPedidos().observe(this, pedidos -> {
             if (pedidos != null) {
                 adapter.actualizarLista(pedidos);
-                binding.tvVacio.setVisibility(pedidos.isEmpty() ? View.VISIBLE : View.GONE);
+                binding.emptyState.setVisibility(pedidos.isEmpty() ? View.VISIBLE : View.GONE);
             }
         });
     }
 
     private void cargarPedidos() {
-        String filtroEstado = (String) binding.spinnerFiltroEstado.getSelectedItem();
+        String filtroEstado = binding.spinnerFiltroEstado.getText() != null
+                ? binding.spinnerFiltroEstado.getText().toString() : "";
         String busqueda = binding.etBuscar.getText().toString();
         viewModel.loadPedidos(filtroEstado, busqueda, filtroClienteId);
     }
@@ -171,19 +158,18 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         
         android.widget.TextView tvProducto = view.findViewById(R.id.tv_detalle_producto);
         android.widget.TextView tvTienda = view.findViewById(R.id.tv_detalle_tienda);
-        android.widget.TextView tvTracking = view.findViewById(R.id.tv_detalle_tracking);
         android.widget.TextView tvFechaCompra = view.findViewById(R.id.tv_detalle_fecha_compra);
         android.widget.TextView tvFechaEntrega = view.findViewById(R.id.tv_detalle_fecha_entrega);
         android.widget.TextView tvCosto = view.findViewById(R.id.tv_detalle_costo);
         android.widget.TextView tvVenta = view.findViewById(R.id.tv_detalle_venta);
         android.widget.TextView tvGanancia = view.findViewById(R.id.tv_detalle_ganancia);
         android.widget.TextView tvEstado = view.findViewById(R.id.tv_detalle_estado);
+        com.google.android.material.button.MaterialButton btnEnviar = view.findViewById(R.id.btn_enviar_resumen);
         
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
         
-        tvProducto.setText("Cliente: " + pedido.getClienteNombre()); // Using Client as main title/product since Product name is missing
+        tvProducto.setText(pedido.getClienteNombre());
         tvTienda.setText(pedido.getTienda());
-        tvTracking.setText("N/A"); // Tracking field does not exist in model
         
         tvFechaCompra.setText(pedido.getFechaRegistro() != null ? sdf.format(pedido.getFechaRegistro()) : "N/A");
         tvFechaEntrega.setText(pedido.getFechaEntrega() != null ? sdf.format(pedido.getFechaEntrega()) : "N/A");
@@ -209,7 +195,9 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
             androidx.core.content.ContextCompat.getColor(this, colorRes)
         ));
         tvEstado.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
-        
+
+        btnEnviar.setOnClickListener(v -> enviarResumenCliente(pedido, sdf));
+
         builder.setView(view)
                .setPositiveButton("Cerrar", null)
                .setNeutralButton("Editar", (dialog, which) -> {
@@ -218,6 +206,27 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
                    startActivity(i);
                })
                .show();
+    }
+
+    private void enviarResumenCliente(Pedido pedido, java.text.SimpleDateFormat sdf) {
+        String fechaRegistro = pedido.getFechaRegistro() != null ? sdf.format(pedido.getFechaRegistro()) : "N/A";
+        String fechaEntrega = pedido.getFechaEntrega() != null ? sdf.format(pedido.getFechaEntrega()) : "N/A";
+
+        String mensaje = "*Resumen del Pedido*\n\n"
+                + getString(R.string.pedido_detalle_cliente) + ": " + pedido.getClienteNombre() + "\n"
+                + getString(R.string.pedido_detalle_tienda) + ": " + pedido.getTienda() + "\n"
+                + getString(R.string.pedido_detalle_fecha_compra) + ": " + fechaRegistro + "\n"
+                + getString(R.string.pedido_detalle_fecha_entrega) + ": " + fechaEntrega + "\n"
+                + getString(R.string.pedido_detalle_costo) + ": RD$ " + String.format(java.util.Locale.getDefault(), "%,.2f", pedido.getMontoCompra()) + "\n"
+                + getString(R.string.pedido_detalle_venta) + ": RD$ " + String.format(java.util.Locale.getDefault(), "%,.2f", pedido.getTotalGeneral()) + "\n"
+                + getString(R.string.pedido_detalle_ganancia) + ": RD$ " + String.format(java.util.Locale.getDefault(), "%,.2f", pedido.getGanancia()) + "\n"
+                + "Estado: " + pedido.getEstado();
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.pedido_share_subject, pedido.getClienteNombre()));
+        intent.putExtra(Intent.EXTRA_TEXT, mensaje);
+        startActivity(Intent.createChooser(intent, getString(R.string.pedido_enviar_resumen)));
     }
 
     @Override

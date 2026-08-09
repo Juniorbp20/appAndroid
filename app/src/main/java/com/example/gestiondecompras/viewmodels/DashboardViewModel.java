@@ -25,6 +25,7 @@ public class DashboardViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> overdueOrdersCount = new MutableLiveData<>();
     private final MutableLiveData<Double> projectedEarnings = new MutableLiveData<>();
     private final MutableLiveData<java.util.List<Pedido>> upcomingOrders = new MutableLiveData<>();
+    private final MutableLiveData<Double> monthExpenses = new MutableLiveData<>();
 
     public DashboardViewModel(@NonNull Application application) {
         super(application);
@@ -56,11 +57,14 @@ public class DashboardViewModel extends AndroidViewModel {
             int overdue = db.pedidoDao().getOverdueOrdersCount(System.currentTimeMillis());
             overdueOrdersCount.postValue(overdue);
 
-            Double earnings = db.reporteDao().gananciaProyectada();
+            Double earnings = db.reporteDao().gananciaProyectada(null, null, "");
             projectedEarnings.postValue(earnings != null ? earnings : 0d);
 
             java.util.List<Pedido> proximos = db.pedidoDao().getProximosPedidos(System.currentTimeMillis(), 5);
             upcomingOrders.postValue(proximos != null ? proximos : Collections.emptyList());
+
+            long[] mes = ListaGastosViewModel.inicioYFinDelMes();
+            monthExpenses.postValue(db.gastoDao().getTotalRango(mes[0], mes[1]));
         });
     }
 
@@ -84,5 +88,9 @@ public class DashboardViewModel extends AndroidViewModel {
 
     public LiveData<java.util.List<Pedido>> getUpcomingOrders() {
         return upcomingOrders;
+    }
+
+    public LiveData<Double> getMonthExpenses() {
+        return monthExpenses;
     }
 }

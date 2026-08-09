@@ -47,6 +47,59 @@
     <string name="clientes_empty">No hay clientes</string>
     <string name="clientes_nuevo">Nuevo cliente</string>
     <string name="pedidos_title">Pedidos</string>
+    <string name="gastos_title">Mis Gastos</string>
+    <string name="gastos_nuevo">Nuevo gasto</string>
+    <string name="gastos_del_mes">Gastos del mes</string>
+    <string name="gastos_cantidad_placeholder">0 gastos este mes</string>
+    <string name="gastos_cantidad_format">%d gastos este mes</string>
+    <string name="gastos_filter_title">Buscar y filtrar</string>
+    <string name="gastos_search_hint">Buscar gasto</string>
+    <string name="gastos_desde">Desde</string>
+    <string name="gastos_hasta">Hasta</string>
+    <string name="gastos_empty">No hay gastos</string>
+    <string name="gastos_categoria">Categor\u00EDa</string>
+    <string name="gastos_categoria_obligatoria">Selecciona una categor\u00EDa</string>
+    <string name="editar_gasto_title">Editar gasto</string>
+    <string name="gastos_monto">Monto (RD$)</string>
+    <string name="gastos_fecha">Fecha</string>
+    <string name="gastos_descripcion">Descripci\u00F3n</string>
+    <string name="gastos_notas">Notas (opcional)</string>
+    <string name="gastos_monto_invalido">Ingresa un monto v\u00E1lido</string>
+    <string name="gastos_descripcion_obligatoria">Describe tu gasto</string>
+    <string name="gastos_editado">Gasto actualizado</string>
+    <string name="gastos_guardado">Gasto guardado</string>
+    <string name="gastos_eliminar_title">Eliminar gasto</string>
+    <string name="gastos_eliminar_message">\u00BFEst\u00E1s seguro de que deseas eliminar este gasto?</string>
+    <string name="toast_gasto_eliminado">Gasto eliminado</string>
+    <string name="accion_editar">Editar</string>
+    <string name="settings_theme_subtitle">Claro, oscuro o seg\u00FAn el sistema</string>
+    <string name="settings_biometric_subtitle">Protege la app con tu huella o PIN</string>
+    <string name="settings_backup">Copia de seguridad (Nube)</string>
+    <string name="settings_backup_subtitle">Respalda o restaura tus datos con Google Drive</string>
+    <string name="settings_backup_upload">Subir a Google Drive</string>
+    <string name="settings_backup_restore">Restaurar desde Google Drive</string>
+    <string name="notif_canal_nombre">Recordatorios diarios</string>
+    <string name="notif_canal_desc">Resumen de pedidos, entregas y cortes de tarjetas</string>
+    <string name="notif_resumen_title">Resumen de pedidos</string>
+    <string name="notif_pedidos_por_cobrar">Pedidos por cobrar</string>
+    <string name="notif_pedidos_atrasados">Pedidos atrasados</string>
+    <string name="notif_entregas_manana">Entregas ma\u00F1ana</string>
+    <string name="notif_corte_tarjeta">Corte de tarjeta en %1$d d\u00EDas</string>
+    <string name="notif_entrega_title">Entrega de pedido</string>
+    <string name="notif_entrega_text">El pedido de %s se entrega ma\u00F1ana.</string>
+    <string name="notif_corte_title">Corte de tarjeta</string>
+    <string name="notif_corte_text">El corte de %s es en %1$d d\u00EDas.</string>
+    <string name="gastos_dashboard_title">Gastos del mes</string>
+    <string name="pedido_resumen_title">Resumen del Pedido</string>
+    <string name="pedido_detalle_cliente">Cliente</string>
+    <string name="pedido_detalle_tienda">Tienda</string>
+    <string name="pedido_detalle_fecha_compra">Fecha de compra</string>
+    <string name="pedido_detalle_fecha_entrega">Fecha de entrega</string>
+    <string name="pedido_detalle_costo">Costo total</string>
+    <string name="pedido_detalle_venta">Precio de venta</string>
+    <string name="pedido_detalle_ganancia">Ganancia</string>
+    <string name="pedido_enviar_resumen">Enviar resumen al cliente</string>
+    <string name="pedido_share_subject">Resumen del pedido - %s</string>
     <string name="pedidos_filter_title">Filtros</string>
     <string name="pedidos_search_hint">Buscar pedido</string>
     <string name="pedidos_filter_status">Estado</string>
@@ -120,12 +173,31 @@
     <string name="reportes_pagados_title">Pedidos pagados</string>
     <string name="reportes_pagados_vacios">No hay pedidos pagados</string>
     <string name="reportes_export_pdf">Exportar PDF</string>
+    <string name="reportes_filter_title">Filtros</string>
+    <string name="reportes_search_hint">Buscar por cliente</string>
+    <string name="reportes_fecha_desde">Desde</string>
+    <string name="reportes_fecha_hasta">Hasta</string>
+    <string name="reportes_por_pagar_title">Pedidos por cobrar</string>
+    <string name="reportes_por_pagar_vacios">No hay pedidos por cobrar</string>
+    <string name="reportes_pdf_abrir">Abrir PDF</string>
+    <string name="reportes_pdf_open_error">No hay un visor de PDF disponible</string>
     <string name="reportes_pdf_generado">PDF guardado en %s</string>
     <string name="reportes_pdf_error">No se pudo generar el PDF</string>
     <string name="dialog_pago_tarjeta_excede_deuda">No puedes pagar m\u00E1s de la deuda disponible</string>
     <string name="dialog_tarjeta_en_uso">No puedes eliminar la tarjeta porque tiene pedidos pendientes</string>
     <string name="tarjeta_campos_obligatorios">Completa todos los campos obligatorios</string>
     <string name="inicio">Inicio</string>
+    <string name="menu_gestion">Gestión</string>
+    <string name="menu_finanzas">Finanzas</string>
+    <string name="menu_sistema">Sistema</string>
+    <string name="drawer_app_name">GESTIÓN DE COMPRAS</string>
+    <string name="seccion_cliente_tienda">Cliente y tienda</string>
+    <string name="seccion_pago">Datos del pago</string>
+    <string name="seccion_ganancia">Ganancia</string>
+    <string name="seccion_fechas">Fechas</string>
+    <string name="seccion_notas">Notas</string>
+    <string name="calendario_search_hint">Buscar por cliente</string>
+    <string name="clientes_filter_hint">Filtrar por</string>
     <string name="seguridad">Seguridad</string>
     <string name="bloqueo_biometrico">Bloqueo biométrico</string>
     <string name="hora_recordatorio">Hora del recordatorio</string>
@@ -158,10 +230,11 @@
 
     <string name="ayuda_pedidos_title">2. Control de Pedidos</string>
     <string name="ayuda_pedidos_desc">
-<b>Nuevo Pedido:</b> Ve a "Nuevo Pedido", selecciona el cliente, la tienda y los productos. El sistema calculará el total y la ganancia.\n
-<b>Estados:</b> Los pedidos inician como "Por Cobrar". Mantén presionado un pedido en la lista para cambiar su estado a "Entregado", "Pagado" o "Cancelado".\n
-<b>Filtros:</b> En "Ver Pedidos", usa el filtro superior para ver solo los que te deben (Por Cobrar) o los Atrasados.\n
-<b>Eliminar:</b> Desliza un pedido hacia la izquierda para borrarlo.
+<b>Nuevo Pedido:</b> Toca "Nuevo Pedido" en las acciones r\u00E1pidas. Selecciona el cliente, la tienda y la tarjeta (opcional) con los men\u00FAs desplegables, elige las fechas de compra y entrega, y completa montos. El total y la ganancia se calculan solos.\n
+<b>Estados:</b> Los pedidos inician como "Por Cobrar". Mant\u00E9n presionado un pedido para cambiar su estado a "Entregado", "Pagado" o "Cancelado".\n
+<b>Resumen:</b> Toca un pedido para ver su resumen completo y usa "Enviar resumen al cliente" para compartirlo por WhatsApp, correo u otra app que tengas instalada.\n
+<b>Filtros:</b> En "Ver Pedidos" puedes buscar por texto y filtrar por estado.\n
+<b>Calendario:</b> La secci\u00F3n "Calendario" muestra los pedidos por d\u00EDa (entregas y registros) y permite buscar un cliente espec\u00EDfico.
 </string>
 
     <string name="ayuda_tarjetas_title">3. Tarjetas de Crédito</string>
@@ -171,16 +244,36 @@
 <b>Alerta:</b> La barra de progreso se pondrá roja si estás cerca de tu límite.
 </string>
 
-    <string name="ayuda_reportes_title">4. Reportes y Ganancias</string>
-    <string name="ayuda_reportes_desc">
-<b>Dashboard:</b> La pantalla principal te resume cuánto te deben (Total Pendiente) y tu ganancia esperada.\n
-<b>Exportar:</b> En la sección "Reportes", puedes generar un PDF con el historial de pedidos pagados para tu control personal.
+    <string name="ayuda_calendario_title">4. Calendario</string>
+    <string name="ayuda_calendario_desc">
+<b>Vista por d\u00EDa:</b> Toca un d\u00EDa en el calendario para ver los pedidos registrados y programados para esa fecha.\n
+<b>Buscar cliente:</b> Usa el campo de b\u00FAsqueda para filtrar los pedidos del d\u00EDa por cliente.\n
+<b>Historial:</b> Los d\u00EDas con actividad muestran su informaci\u00F3n completa, incluyendo pedidos ya pagados. Toca cualquier pedido para ver su resumen y compartirlo con el cliente.
 </string>
 
-    <string name="ayuda_seguridad_title">5. Seguridad y Datos</string>
+    <string name="ayuda_gastos_title">5. Mis Gastos</string>
+    <string name="ayuda_gastos_desc">
+<b>Registro:</b> En la secci\u00F3n "Mis Gastos" (men\u00FA Finanzas) usa el bot\u00F3n (+) para anotar tus gastos personales: elige categor\u00EDa (Comida, Transporte, Hogar, Servicios, Salud, Entretenimiento, Compras u Otros), monto, fecha y descripci\u00F3n.\n
+<b>Resumen:</b> La pantalla te muestra el total de gastos del mes actual.\n
+<b>Filtros:</b> Busca por texto y filtra por rango de fechas (Desde/Hasta). Mant\u00E9n presionado un campo de fecha para limpiarlo.\n
+<b>Editar o borrar:</b> Toca o mant\u00E9n presionado un gasto para editarlo o eliminarlo.\n
+<b>Dashboard:</b> La card "Gastos del mes" del inicio te muestra el acumulado y abre Mis Gastos de un toque.
+</string>
+
+    <string name="ayuda_reportes_title">6. Reportes y Ganancias</string>
+    <string name="ayuda_reportes_desc">
+<b>Dashboard:</b> La pantalla principal te resume lo que tienes por cobrar, lo pagado, pedidos atrasados, ganancia esperada y los gastos del mes. Toca cualquier tarjeta para ir directo a la secci\u00F3n correspondiente.\n
+<b>Reportes:</b> En la secci\u00F3n "Reportes" filtra por cliente y rango de fechas. La app separa los pedidos en "Por Cobrar" y "Pagados" y te permite generar un PDF formateado que se abre autom\u00E1ticamente en el visor.\n
+<b>PDF:</b> El PDF incluye tarjetas por pedido con su estado, el detalle de montos y un resumen final con totales.
+</string>
+
+    <string name="ayuda_seguridad_title">7. Seguridad, Tema y Datos</string>
     <string name="ayuda_seguridad_desc">
-<b>Biometría:</b> Ve a Configuración para activar el bloqueo con huella dactilar.\n
-<b>Google Drive:</b> Inicia sesión en Configuración para subir tu base de datos a la nube. Podrás restaurarla en cualquier memento o dispositivo usando la misma cuenta de Google.
+<b>Tema:</b> Ve a Configuraci\u00F3n y elige "Claro", "Oscuro" o "Seg\u00FAn el sistema". La app guarda tu preferencia en cada reinicio.\n
+<b>Biometr\u00EDa:</b> Activa el interruptor de bloqueo biom\u00E9trico para proteger la app con tu huella o PIN.\n
+<b>Recordatorios:</b> Configura cu\u00E1ntos d\u00EDas antes del corte avisarte y a qu\u00E9 hora.\n
+<b>Google Drive:</b> Inicia sesi\u00F3n en Configuraci\u00F3n para subir tu base de datos a la nube y restaurarla en este u otro dispositivo con la misma cuenta de Google.\n
+<b>Restablecer:</b> El bot\u00F3n rojo "Resetear aplicaci\u00F3n" borra todos los datos de forma definitiva.
 </string>
     <string name="creado_por">By Gustavo J. Bonifacio</string>
 </resources>

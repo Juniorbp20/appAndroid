@@ -26,6 +26,16 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
 
         <activity android:name="com.example.gestiondecompras.activities.TarjetasActivity"
             android:label="@string/tarjetas_title"
@@ -57,6 +67,12 @@
         <activity android:name="com.example.gestiondecompras.activities.AyudaActivity"
             android:label="@string/ayuda_title"
             android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.ListaGastosActivity"
+            android:label="@string/gastos_title"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity android:name="com.example.gestiondecompras.activities.NuevoGastoActivity"
+            android:label="@string/gastos_nuevo"
+            android:parentActivityName=".activities.ListaGastosActivity" />
 
 
         <activity android:name="com.example.gestiondecompras.activities.MainActivity"

@@ -39,6 +39,13 @@
     <color name="gray_dark">#37474F</color>
     <color name="background_light">#F5F7FB</color>
     <color name="background_card">#FFFFFF</color>
+    <color name="card_stroke">#EEF1F6</color>
+
+    <color name="dashboard_badge_blue_bg">#E3F2FD</color>
+    <color name="dashboard_badge_green_bg">#E8F5E9</color>
+    <color name="dashboard_badge_red_bg">#FFEBEE</color>
+    <color name="dashboard_trend_bg">#E8F5E9</color>
+    <color name="drawer_gradient_end">#0D47A1</color>
 
     <color name="dashboard_card_income">#2E7D32</color>
     <color name="dashboard_card_income_stroke">#4CAF50</color>

@@ -9,11 +9,14 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary_color"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:layout_marginTop="12dp"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
         app:title="@string/ayuda_title"
-        app:titleTextColor="@android:color/white" />
+        app:titleCentered="true"
+        app:titleTextAppearance="@style/TextAppearance.ToolbarTitleDark"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/gray_dark" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -83,6 +86,40 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ayuda_tarjetas_desc"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Calendario -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ayuda_calendario_title"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_color"
+                android:layout_marginBottom="8dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ayuda_calendario_desc"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Gastos -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ayuda_gastos_title"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_color"
+                android:layout_marginBottom="8dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ayuda_gastos_desc"
                 android:textSize="14sp"
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="24dp" />

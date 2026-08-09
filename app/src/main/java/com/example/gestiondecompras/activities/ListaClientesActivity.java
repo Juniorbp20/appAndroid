@@ -76,14 +76,11 @@ public class ListaClientesActivity extends AppCompatActivity implements Clientes
         filtroEmail = getString(R.string.clientes_filter_email);
 
         String[] opciones = new String[]{filtroTodos, filtroTelefono, filtroEmail};
-        ArrayAdapter<String> spAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opciones);
-        spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> spAdapter = new ArrayAdapter<>(this, R.layout.item_dropdown, opciones);
         binding.spinnerFiltro.setAdapter(spAdapter);
+        binding.spinnerFiltro.setText(filtroTodos, false);
 
-        binding.spinnerFiltro.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) { aplicarFiltros(); }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        });
+        binding.spinnerFiltro.setOnItemClickListener((parent, view, position, id) -> aplicarFiltros());
 
         binding.etBuscar.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -126,7 +123,8 @@ public class ListaClientesActivity extends AppCompatActivity implements Clientes
 
     private void aplicarFiltros() {
         String q = binding.etBuscar.getText().toString().toLowerCase(Locale.getDefault()).trim();
-        String filtro = (String) binding.spinnerFiltro.getSelectedItem();
+        String filtro = binding.spinnerFiltro.getText() != null
+                ? binding.spinnerFiltro.getText().toString() : filtroTodos;
 
         visibles.clear();
         for (Cliente c : fuente) {
@@ -143,7 +141,7 @@ public class ListaClientesActivity extends AppCompatActivity implements Clientes
         }
 
         adapter.notifyDataSetChanged();
-        binding.tvVacio.setVisibility(visibles.isEmpty() ? View.VISIBLE : View.GONE);
+        binding.emptyState.setVisibility(visibles.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override

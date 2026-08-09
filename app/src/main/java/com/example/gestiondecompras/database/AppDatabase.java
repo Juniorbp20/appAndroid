@@ -7,11 +7,13 @@ import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.gestiondecompras.daos.ClienteDao;
+import com.example.gestiondecompras.daos.GastoDao;
 import com.example.gestiondecompras.daos.PedidoDao;
 import com.example.gestiondecompras.daos.ReporteDao;
 import com.example.gestiondecompras.daos.TarjetaDao;
 import com.example.gestiondecompras.daos.TiendaDao;
 import com.example.gestiondecompras.models.Cliente;
+import com.example.gestiondecompras.models.Gasto;
 import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.models.Tarjeta;
 import com.example.gestiondecompras.models.Tienda;
@@ -21,9 +23,10 @@ import com.example.gestiondecompras.models.Tienda;
                 Cliente.class,
                 Tienda.class,
                 Tarjeta.class,
-                Pedido.class
+                Pedido.class,
+                Gasto.class
         },
-        version = 3,
+        version = 4,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -64,4 +67,5 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract TarjetaDao tarjetaDao();
     public abstract PedidoDao pedidoDao();
     public abstract ReporteDao reporteDao();
+    public abstract GastoDao gastoDao();
 }

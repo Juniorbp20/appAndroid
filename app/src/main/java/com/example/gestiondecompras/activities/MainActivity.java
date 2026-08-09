@@ -16,6 +16,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -159,9 +162,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupDrawer() {
+        binding.navView.setCheckedItem(R.id.nav_home);
+
         binding.toolbar.setNavigationOnClickListener(v -> 
             binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
         );
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.navView, (v, insets) -> {
+            Insets statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            View header = binding.navView.getHeaderView(0);
+            if (header != null && statusBar.top > 0) {
+                header.setPadding(header.getPaddingLeft(), statusBar.top,
+                        header.getPaddingRight(), header.getPaddingBottom());
+            }
+            return insets;
+        });
 
         binding.navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -177,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ListaClientesActivity.class));
             } else if (id == R.id.nav_reportes) {
                 startActivity(new Intent(this, ReportesActivity.class));
+            } else if (id == R.id.nav_gastos) {
+                startActivity(new Intent(this, ListaGastosActivity.class));
             } else if (id == R.id.nav_tarjetas) {
                 startActivity(new Intent(this, TarjetasActivity.class));
             } else if (id == R.id.nav_ayuda) {
@@ -245,6 +262,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.cardGananciaEsperada.setOnClickListener(v -> showClientEarningsDialog());
+
+        binding.cardGastosMes.setOnClickListener(v ->
+                startActivity(new Intent(this, ListaGastosActivity.class)));
     }
 
     @SuppressLint("DefaultLocale")
@@ -277,6 +297,12 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 binding.rvProximosPedidos.setVisibility(View.GONE);
                 binding.emptyState.setVisibility(View.VISIBLE);
+            }
+        });
+
+        viewModel.getMonthExpenses().observe(this, total -> {
+            if (total != null) {
+                binding.tvGastosMes.setText(String.format("RD$ %,.2f", total));
             }
         });
     }

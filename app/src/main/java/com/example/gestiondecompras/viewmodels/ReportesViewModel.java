@@ -57,20 +57,20 @@ public class ReportesViewModel extends AndroidViewModel {
         return pedidosPagados;
     }
 
-    public void loadReportes() {
+    public void loadReportes(Long desde, Long hasta, String busqueda) {
         executorService.execute(() -> {
-            Double cobrado = db.reporteDao().totalCobrado();
-            Double pendiente = db.reporteDao().totalPendiente();
-            Double ventas = db.reporteDao().ventasGeneradas();
-            Double ganancia = db.reporteDao().gananciaProyectada();
-            List<Pedido> listado = db.pedidoDao().findByEstado("");
-            List<Pedido> pagados = db.pedidoDao().getPedidosPagados();
+            Double cobrado = db.reporteDao().totalCobrado(desde, hasta, busqueda);
+            Double pendiente = db.reporteDao().totalPendiente(desde, hasta, busqueda);
+            Double ventas = db.reporteDao().ventasGeneradas(desde, hasta, busqueda);
+            Double ganancia = db.reporteDao().gananciaProyectada(desde, hasta, busqueda);
+            List<Pedido> porCobrar = db.pedidoDao().getPedidosPorCobrar(desde, hasta, busqueda);
+            List<Pedido> pagados = db.pedidoDao().getPedidosPagadosFiltrados(desde, hasta, busqueda);
 
             totalCobrado.postValue(cobrado != null ? cobrado : 0d);
             totalPendiente.postValue(pendiente != null ? pendiente : 0d);
             ventasGeneradas.postValue(ventas != null ? ventas : 0d);
             gananciaProyectada.postValue(ganancia != null ? ganancia : 0d);
-            pedidos.postValue(listado != null ? listado : Collections.emptyList());
+            pedidos.postValue(porCobrar != null ? porCobrar : Collections.emptyList());
             pedidosPagados.postValue(pagados != null ? pagados : Collections.emptyList());
         });
     }

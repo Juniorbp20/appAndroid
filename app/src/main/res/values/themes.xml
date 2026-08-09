@@ -23,4 +23,27 @@
     <style name="CircleImage" parent="">
         <item name="cornerSize">50%</item>
     </style>
+
+    <style name="TextAppearance.NavItem" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.NavSubheader" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <style name="TextAppearance.ToolbarTitleDark" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/gray_dark</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.NuevoPedidoTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/gray_dark</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

@@ -12,14 +12,14 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_marginHorizontal="12dp"
         android:layout_marginTop="12dp"
-        android:background="@drawable/bg_toolbar_main"
-        android:elevation="4dp"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
         android:title="@string/calendario"
         app:titleCentered="true"
-        app:titleTextColor="@color/white"
-        app:navigationIcon="@drawable/ic_arrow_back" />
+        app:titleTextAppearance="@style/TextAppearance.ToolbarTitleDark"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/gray_dark" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -70,6 +70,23 @@
                         android:textSize="14sp"
                         android:textStyle="bold"
                         tools:text="(3 pedidos)" />
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="12dp"
+                                    android:hint="@string/calendario_search_hint"
+                                    app:startIconDrawable="@drawable/ic_search">
+
+                                    <com.google.android.material.textfield.TextInputEditText
+                                        android:id="@+id/etBuscarCliente"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:imeOptions="actionSearch"
+                                        android:inputType="text"
+                                        tools:text="Ana" />
+                                </com.google.android.material.textfield.TextInputLayout>
 
                                 <androidx.recyclerview.widget.RecyclerView
                                     android:id="@+id/rvPedidosDelDia"

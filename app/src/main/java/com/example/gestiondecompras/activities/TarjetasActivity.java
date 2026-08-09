@@ -65,7 +65,7 @@ public class TarjetasActivity extends AppCompatActivity implements TarjetasAdapt
         viewModel.getTarjetas().observe(this, tarjetas -> {
             if (tarjetas != null) {
                 adapter.actualizarLista(tarjetas);
-                binding.tvEmpty.setVisibility(tarjetas.isEmpty() ? View.VISIBLE : View.GONE);
+                binding.emptyState.setVisibility(tarjetas.isEmpty() ? View.VISIBLE : View.GONE);
             }
         });
         viewModel.getMensajes().observe(this, mensaje -> {
