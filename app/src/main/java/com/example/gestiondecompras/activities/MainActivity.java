@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        applySystemBarsPadding();
+
         viewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
 
         updateGreeting();
@@ -68,6 +70,33 @@ public class MainActivity extends AppCompatActivity {
         loadBannerAd();
         askNotificationPermission();
         updateGoogleUserInfo();
+    }
+
+    private void applySystemBarsPadding() {
+        View contentRoot = (View) binding.toolbar.getParent();
+        if (Build.VERSION.SDK_INT >= 30) {
+            android.view.WindowInsets wi = getWindow().getDecorView().getRootWindowInsets();
+            int top = 0, bottom = 0;
+            if (wi != null) {
+                top = wi.getInsets(android.view.WindowInsets.Type.statusBars()).top;
+                bottom = wi.getInsets(android.view.WindowInsets.Type.navigationBars()).bottom;
+            }
+            contentRoot.setPadding(contentRoot.getPaddingLeft(), top,
+                    contentRoot.getPaddingRight(), bottom);
+        } else {
+            int statusBarId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (statusBarId > 0) {
+                int top = getResources().getDimensionPixelSize(statusBarId);
+                contentRoot.setPadding(contentRoot.getPaddingLeft(), top,
+                        contentRoot.getPaddingRight(), contentRoot.getPaddingBottom());
+            }
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) applySystemBarsPadding();
     }
 
     private void updateGoogleUserInfo() {

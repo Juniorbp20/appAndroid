@@ -42,6 +42,14 @@ public class SettingsActivity extends AppCompatActivity {
             result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     handleSignInResult(result.getData());
+                } else if (result.getData() != null) {
+                    try {
+                        GoogleSignIn.getSignedInAccountFromIntent(result.getData())
+                                .getResult(ApiException.class);
+                        Toast.makeText(this, "Inicio de sesión cancelado", Toast.LENGTH_SHORT).show();
+                    } catch (ApiException e) {
+                        Toast.makeText(this, "Error de Google: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     Toast.makeText(this, "Inicio de sesión cancelado o fallido", Toast.LENGTH_SHORT).show();
                 }
