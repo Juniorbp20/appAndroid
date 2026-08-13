@@ -217,9 +217,7 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
                 + getString(R.string.pedido_detalle_tienda) + ": " + pedido.getTienda() + "\n"
                 + getString(R.string.pedido_detalle_fecha_compra) + ": " + fechaRegistro + "\n"
                 + getString(R.string.pedido_detalle_fecha_entrega) + ": " + fechaEntrega + "\n"
-                + getString(R.string.pedido_detalle_costo) + ": RD$ " + String.format(java.util.Locale.getDefault(), "%,.2f", pedido.getMontoCompra()) + "\n"
                 + getString(R.string.pedido_detalle_venta) + ": RD$ " + String.format(java.util.Locale.getDefault(), "%,.2f", pedido.getTotalGeneral()) + "\n"
-                + getString(R.string.pedido_detalle_ganancia) + ": RD$ " + String.format(java.util.Locale.getDefault(), "%,.2f", pedido.getGanancia()) + "\n"
                 + "Estado: " + pedido.getEstado();
 
         Intent intent = new Intent(Intent.ACTION_SEND);

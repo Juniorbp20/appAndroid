@@ -55,11 +55,12 @@
                         android:textStyle="bold"
                         tools:text="Hoy: 12/05/2025" />
 
-                    <CalendarView
+                    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
                         android:id="@+id/calendarView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp" />
+                        android:layout_marginTop="12dp"
+                        app:mcv_showOtherDates="none" />
 
                     <TextView
                         android:id="@+id/tvCantidadPedidos"

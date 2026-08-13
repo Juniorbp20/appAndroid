@@ -24,6 +24,7 @@ googleApiClient = "2.9.0"
 googleDrive = "v3-rev20260305-2.0.0"
 googleHttpClientGson = "2.1.0"
 glide = "4.16.0"
+materialCalendarView = "1.4.3"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -55,6 +56,7 @@ google-api-services-drive = { group = "com.google.apis", name = "google-api-serv
 google-http-client-gson = { group = "com.google.http-client", name = "google-http-client-gson", version.ref = "googleHttpClientGson" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+material-calendarview = { group = "com.prolificinteractive", name = "material-calendarview", version.ref = "materialCalendarView" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

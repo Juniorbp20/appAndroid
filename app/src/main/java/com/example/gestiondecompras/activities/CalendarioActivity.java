@@ -1,6 +1,8 @@
 package com.example.gestiondecompras.activities;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
+import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -11,13 +13,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.adapters.PedidosAdapter;
 import com.example.gestiondecompras.databinding.ActivityCalendarioBinding;
+import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.viewmodels.CalendarioViewModel;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+
+import android.text.style.ForegroundColorSpan;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class CalendarioActivity extends AppCompatActivity implements PedidosAdapter.OnPedidoClickListener {
 
@@ -48,6 +60,7 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
 
         binding.tvFechaSeleccionada.setText("Hoy: " + df.format(new Date()));
         viewModel.loadPedidos(new Date().getTime(), "");
+        viewModel.loadAllPedidos();
     }
 
     private void setupSearch() {
@@ -61,16 +74,17 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
     private void reloadDay() {
         String busqueda = binding.etBuscarCliente.getText() != null
                 ? binding.etBuscarCliente.getText().toString().trim() : "";
-        viewModel.loadPedidos(binding.calendarView.getDate(), busqueda);
+        CalendarDay selected = binding.calendarView.getSelectedDate();
+        if (selected != null) {
+            viewModel.loadPedidos(selected.getDate().getTime(), busqueda);
+        }
     }
 
     private void setupCalendar() {
-        binding.calendarView.setOnDateChangeListener((v, y, m, d) -> {
-            Calendar c = Calendar.getInstance();
-            c.set(y, m, d, 0, 0, 0);
-            Date sel = c.getTime();
-            binding.tvFechaSeleccionada.setText(df.format(sel));
-            viewModel.loadPedidos(sel.getTime(), binding.etBuscarCliente.getText() != null
+        binding.calendarView.setSelectedDate(new Date());
+        binding.calendarView.setOnDateChangedListener((widget, date, selected) -> {
+            binding.tvFechaSeleccionada.setText(df.format(date.getDate()));
+            viewModel.loadPedidos(date.getDate().getTime(), binding.etBuscarCliente.getText() != null
                     ? binding.etBuscarCliente.getText().toString().trim() : "");
         });
     }
@@ -92,6 +106,71 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
                 binding.tvCantidadPedidos.setText("(0 pedidos)");
             }
         });
+        viewModel.getTodosLosPedidos().observe(this, pedidos -> {
+            if (pedidos != null) {
+                aplicarColoresDias(pedidos);
+            }
+        });
+    }
+
+    private void aplicarColoresDias(List<Pedido> pedidos) {
+        Map<String, Integer> coloresPorDia = new HashMap<>();
+        for (Pedido p : pedidos) {
+            if (p.fechaRegistroEpoch == null) continue;
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(p.fechaRegistroEpoch);
+            String dia = c.get(Calendar.YEAR) + "-" + c.get(Calendar.MONTH) + "-" + c.get(Calendar.DAY_OF_MONTH);
+            int color = colorDeEstado(p.getEstado());
+            Integer actual = coloresPorDia.get(dia);
+            if (actual == null || prioridadDe(color) < prioridadDe(actual)) {
+                coloresPorDia.put(dia, color);
+            }
+        }
+        binding.calendarView.removeDecorators();
+        for (Map.Entry<String, Integer> e : coloresPorDia.entrySet()) {
+            String[] partes = e.getKey().split("-");
+            int year = Integer.parseInt(partes[0]);
+            int month = Integer.parseInt(partes[1]);
+            int day = Integer.parseInt(partes[2]);
+            binding.calendarView.addDecorator(new ColorDiaDecorator(CalendarDay.from(year, month, day),
+                    ContextCompat.getColor(this, e.getValue())));
+        }
+        binding.calendarView.invalidateDecorators();
+    }
+
+    private int colorDeEstado(String estado) {
+        if (estado == null) return R.color.status_pending;
+        if (Pedido.ESTADO_PAGADO.equalsIgnoreCase(estado)) return R.color.status_paid;
+        if (Pedido.ESTADO_ENTREGADO.equalsIgnoreCase(estado)) return R.color.status_delivered;
+        if (Pedido.ESTADO_CANCELADO.equalsIgnoreCase(estado)) return R.color.status_cancelled;
+        return R.color.status_pending;
+    }
+
+    private int prioridadDe(int colorRes) {
+        if (colorRes == R.color.status_pending) return 0;
+        if (colorRes == R.color.status_delivered) return 1;
+        if (colorRes == R.color.status_paid) return 2;
+        return 3;
+    }
+
+    private static class ColorDiaDecorator implements DayViewDecorator {
+        private final CalendarDay dia;
+        private final int color;
+
+        ColorDiaDecorator(CalendarDay dia, int color) {
+            this.dia = dia;
+            this.color = color;
+        }
+
+        @Override
+        public boolean shouldDecorate(CalendarDay day) {
+            return day.equals(dia);
+        }
+
+        @Override
+        public void decorate(DayViewFacade view) {
+            view.addSpan(new ForegroundColorSpan(color));
+        }
     }
 
     @Override
@@ -153,9 +232,7 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
                 + getString(R.string.pedido_detalle_tienda) + ": " + pedido.getTienda() + "\n"
                 + getString(R.string.pedido_detalle_fecha_compra) + ": " + fechaRegistro + "\n"
                 + getString(R.string.pedido_detalle_fecha_entrega) + ": " + fechaEntrega + "\n"
-                + getString(R.string.pedido_detalle_costo) + ": RD$ " + String.format(Locale.getDefault(), "%,.2f", pedido.getMontoCompra()) + "\n"
                 + getString(R.string.pedido_detalle_venta) + ": RD$ " + String.format(Locale.getDefault(), "%,.2f", pedido.getTotalGeneral()) + "\n"
-                + getString(R.string.pedido_detalle_ganancia) + ": RD$ " + String.format(Locale.getDefault(), "%,.2f", pedido.getGanancia()) + "\n"
                 + "Estado: " + pedido.getEstado();
 
         Intent intent = new Intent(Intent.ACTION_SEND);

@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+def appVersionName = System.getenv("APP_VERSION_NAME") ?: "1.0"
+def appVersionCode = System.getenv("APP_VERSION_CODE") != null
+        ? Integer.parseInt(System.getenv("APP_VERSION_CODE")) : 1
+def keystorePath = System.getenv("KEYSTORE_PATH")
+
 android {
     namespace 'com.example.gestiondecompras'
     compileSdk 36
@@ -10,20 +15,35 @@ android {
         applicationId "com.example.gestiondecompras"
         minSdk 26
         targetSdk 36
-        versionCode 1
-        versionName "1.0"
+        versionCode appVersionCode
+        versionName appVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            if (keystorePath != null) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("KEYSTORE_PASS")
+                keyAlias System.getenv("KEYSTORE_ALIAS")
+                keyPassword System.getenv("KEYSTORE_KEY_PASS")
+            }
+        }
+    }
+
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystorePath != null) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 
@@ -75,4 +95,16 @@ dependencies {
     // Glide for profile images
     implementation libs.glide
     annotationProcessor libs.glide.compiler
+
+    // Calendar with day decorators
+    implementation(libs.material.calendarview) {
+        exclude group: 'com.android.support'
+    }
+    implementation('com.android.support:support-core-ui:25.1.1') {
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
+    implementation('com.android.support:support-core-utils:25.1.1') {
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
+    implementation files('libs/mcv-support-compat.jar')
 }

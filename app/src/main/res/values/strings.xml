@@ -276,4 +276,12 @@
 <b>Restablecer:</b> El bot\u00F3n rojo "Resetear aplicaci\u00F3n" borra todos los datos de forma definitiva.
 </string>
     <string name="creado_por">By Gustavo J. Bonifacio</string>
+    <string name="actualizacion_disponible">Actualizaci\u00F3n disponible</string>
+    <string name="actualizacion_mensaje">Hay una nueva versi\u00F3n (v%1$s) de Gestión de Compras.\n\n\u00BFDeseas descargarla e instalarla ahora?</string>
+    <string name="actualizar">Actualizar</string>
+    <string name="ahora_no">Ahora no</string>
+    <string name="descarga_iniciada">Descargando actualizaci\u00F3n...</string>
+    <string name="descargando_actualizacion">Gesti\u00F3n de Compras - actualizaci\u00F3n</string>
+    <string name="error_descarga">No se pudo iniciar la descarga</string>
+    <string name="error_instalacion">La actualizaci\u00F3n fall\u00F3; int\u00E9ntalo de nuevo</string>
 </resources>

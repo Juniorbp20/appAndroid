@@ -20,6 +20,7 @@ public class CalendarioViewModel extends AndroidViewModel {
     private final ExecutorService executorService;
 
     private final MutableLiveData<List<Pedido>> pedidos = new MutableLiveData<>();
+    private final MutableLiveData<List<Pedido>> todosLosPedidos = new MutableLiveData<>();
 
     public CalendarioViewModel(@NonNull Application application) {
         super(application);
@@ -31,9 +32,19 @@ public class CalendarioViewModel extends AndroidViewModel {
         return pedidos;
     }
 
+    public LiveData<List<Pedido>> getTodosLosPedidos() {
+        return todosLosPedidos;
+    }
+
     public void loadPedidos(long epoch, String busqueda) {
         executorService.execute(() -> {
             pedidos.postValue(db.pedidoDao().pedidosPorDiaYCliente(epoch, busqueda));
+        });
+    }
+
+    public void loadAllPedidos() {
+        executorService.execute(() -> {
+            todosLosPedidos.postValue(db.pedidoDao().getPedidosFiltrados("", "", null));
         });
     }
 
