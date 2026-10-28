@@ -60,6 +60,12 @@
     <color name="dashboard_card_earnings">#4CAF50</color>
     <color name="gray_medium">#9E9E9E</color>
     
+    <!-- Tutorial -->
+    <color name="tutorial_card">#FFFFFF</color>
+    <color name="tutorial_title">#212121</color>
+    <color name="tutorial_body">#616161</color>
+    <color name="tutorial_dim">#99000000</color>
+    
     <!-- Status Colors -->
     <color name="status_pending">#FFC107</color>
     <color name="status_delivered">#2196F3</color>

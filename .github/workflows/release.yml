@@ -6,11 +6,17 @@ on:
       - '[vV]*' # Modificado para que acepte tanto "v" minúscula como "V" mayúscula
 
 permissions:
-  contents: write 
+  contents: write
+
+env:
+  KEYSTORE_PATH: ${{ github.workspace }}/keystore.jks
+  KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+  KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+  KEYSTORE_KEY_PASS: ${{ secrets.KEYSTORE_KEY_PASS }}
 
 jobs:
   build:
-    runs-on: ubuntu-latest # Simplificado a Ubuntu (es más rápido y evita duplicar el APK)
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout código
@@ -23,25 +29,38 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Restaurar keystore desde secret
         shell: bash
-        run: chmod +x gradlew
+        run: |
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_B64 }}" ]; then
+            echo "Falta el secret ANDROID_KEYSTORE_B64" && exit 1
+          fi
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > keystore.jks
 
-      - name: Compilar APK
+      - name: Derivar versiones del tag
+        id: version
         shell: bash
-        # Mantenemos assembleDebug para asegurar que sea instalable sin configurar firmas complejas aún
-        run: ./gradlew assembleDebug
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          TAG="${TAG#V}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$TAG"
+          MAJOR=${MAJOR:-0}; MINOR=${MINOR:-0}; PATCH=${PATCH:-0}
+          echo "APP_VERSION_NAME=$TAG" >> "$GITHUB_ENV"
+          echo "APP_VERSION_CODE=$((MAJOR*10000 + MINOR*100 + PATCH))" >> "$GITHUB_ENV"
 
-      - name: Preparar y renombrar APK
+      - name: Compilar APK firmado
         shell: bash
-        # Renombramos el archivo temporalmente para que luzca exactamente como en su imagen
-        run: mv app/build/outputs/apk/debug/app-debug.apk app-release.apk
+        run: chmod +x gradlew && ./gradlew assembleRelease
+
+      - name: Renombrar APK
+        shell: bash
+        run: mv app/build/outputs/apk/release/app-release.apk "GestionCompras-${{ github.ref_name }}.apk"
 
       - name: Subir artefacto del build
         uses: actions/upload-artifact@v4
         with:
           name: "apk-gestion-compras"
-          path: "./app-release.apk"
+          path: "./GestionCompras-*.apk"
           if-no-files-found: error
 
   publish-and-release:
@@ -58,6 +77,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: "Release ${{ github.ref_name }}"
-          # Ahora subimos directamente el archivo APK en lugar de un ZIP
-          files: app-release.apk
+          # Subimos directamente el APK firmado en lugar de un ZIP
+          files: ./*.apk
           generate_release_notes: true

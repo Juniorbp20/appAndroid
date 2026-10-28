@@ -64,9 +64,6 @@
         <activity android:name="com.example.gestiondecompras.activities.SettingsActivity"
             android:label="@string/configuracion"
             android:parentActivityName=".activities.MainActivity" />
-        <activity android:name="com.example.gestiondecompras.activities.AyudaActivity"
-            android:label="@string/ayuda_title"
-            android:parentActivityName=".activities.MainActivity" />
         <activity android:name="com.example.gestiondecompras.activities.ListaGastosActivity"
             android:label="@string/finanzas_title"
             android:parentActivityName=".activities.MainActivity" />

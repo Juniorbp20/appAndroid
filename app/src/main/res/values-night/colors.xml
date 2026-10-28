@@ -53,4 +53,9 @@
     <color name="status_delivered">#64B5F6</color>
     <color name="status_paid">#66BB6A</color>
     <color name="status_cancelled">#EF5350</color>
+
+    <color name="tutorial_card">#1E1E1E</color>
+    <color name="tutorial_title">#F5F5F5</color>
+    <color name="tutorial_body">#BDBDBD</color>
+    <color name="tutorial_dim">#99000000</color>
 </resources>
