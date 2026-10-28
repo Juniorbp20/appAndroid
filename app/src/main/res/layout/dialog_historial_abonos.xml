@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/abono_historial_title"
+        android:textColor="@color/gray_dark"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_total_abonado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/gray"
+        android:textSize="14sp"
+        tools:text="Total abonado: RD$ 500.00" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_abonos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:maxHeight="360dp"
+        tools:listitem="@layout/item_abono" />
+
+    <TextView
+        android:id="@+id/tv_abonos_vacio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/abono_sin_registros"
+        android:textColor="@color/gray"
+        android:textSize="14sp"
+        android:visibility="gone" />
+</LinearLayout>

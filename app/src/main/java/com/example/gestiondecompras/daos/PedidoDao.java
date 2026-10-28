@@ -40,10 +40,14 @@ public interface PedidoDao {
     @Query("SELECT * FROM pedidos WHERE (:estado = '' OR estado = :estado) ORDER BY fecha_registro_epoch DESC")
     List<Pedido> findByEstado(String estado);
 
-    @Query("SELECT SUM(CASE WHEN estado != 'pagado' AND estado != 'cancelado' THEN total_general ELSE 0 END) AS totalPendiente, " +
-           "SUM(CASE WHEN estado = 'pagado' THEN total_general ELSE 0 END) AS totalPagado, " +
-           "COUNT(CASE WHEN date(fecha_registro_epoch/1000,'unixepoch')=date('now') THEN 1 END) AS pedidosHoy " +
-           "FROM pedidos")
+    @Query("SELECT " +
+           "COALESCE(SUM(CASE WHEN p.estado != 'cancelado' THEN p.total_general ELSE 0 END), 0) - " +
+           "COALESCE((SELECT SUM(a.monto) FROM abonos a INNER JOIN pedidos p2 ON p2.id = a.pedido_id " +
+           "WHERE p2.estado != 'cancelado'), 0) AS totalPendiente, " +
+           "COALESCE((SELECT SUM(a.monto) FROM abonos a INNER JOIN pedidos p2 ON p2.id = a.pedido_id " +
+           "WHERE p2.estado != 'cancelado'), 0) AS totalPagado, " +
+           "COUNT(CASE WHEN date(p.fecha_registro_epoch/1000,'unixepoch')=date('now') THEN 1 END) AS pedidosHoy " +
+           "FROM pedidos p")
     DashboardRow getDashboard();
 
     @Query("SELECT cliente_nombre AS clienteNombre, SUM(ganancia) AS totalGanancia FROM pedidos WHERE estado != 'cancelado' GROUP BY cliente_id ORDER BY totalGanancia DESC")

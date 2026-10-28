@@ -71,6 +71,37 @@
     <string name="gastos_eliminar_title">Eliminar gasto</string>
     <string name="gastos_eliminar_message">\u00BFEst\u00E1s seguro de que deseas eliminar este gasto?</string>
     <string name="toast_gasto_eliminado">Gasto eliminado</string>
+    <string name="finanzas_title">Finanzas</string>
+    <string name="finanzas_resumen_mes">Resumen del mes</string>
+    <string name="finanzas_ingresos_mes">Ingresos del mes</string>
+    <string name="finanzas_balance_mes">Balance del mes</string>
+    <string name="abono_inicial">Abono inicial (opcional)</string>
+    <string name="pagado_completo">Pagado completo</string>
+    <string name="abono_registrar">Registrar abono</string>
+    <string name="abono_guardar">Guardar abono</string>
+    <string name="abono_monto">Monto del abono (RD$)</string>
+    <string name="abono_metodo">Método de pago</string>
+    <string name="abono_notas">Notas (opcional)</string>
+    <string name="abono_monto_invalido">Ingresa un monto válido</string>
+    <string name="abono_excede_total">El abono no puede superar el total del pedido</string>
+    <string name="abono_excede_saldo">El abono supera el saldo pendiente</string>
+    <string name="abono_total_menor_abonado">El total no puede ser menor a lo ya abonado</string>
+    <string name="abono_saldo_actual_format">Saldo pendiente: %1$s</string>
+    <string name="abono_info_format">Abonado: %1$s · Saldo: %2$s</string>
+    <string name="abono_guardado">Abono registrado</string>
+    <string name="abono_eliminado">Abono eliminado</string>
+    <string name="abono_historial_title">Historial de abonos</string>
+    <string name="abono_ver_historial">Ver historial de abonos</string>
+    <string name="abono_total_format">Total abonado: %1$s</string>
+    <string name="abono_sin_registros">Sin abonos registrados</string>
+    <string name="abono_eliminar_title">Eliminar abono</string>
+    <string name="abono_eliminar_message">¿Estás seguro de que deseas eliminar este abono?</string>
+    <string name="abono_pedido_cancelado">No puedes abonar a un pedido cancelado</string>
+    <string name="abono_pedido_pagado">Este pedido ya está pagado</string>
+    <string name="pedido_detalle_abonado">Abonado</string>
+    <string name="pedido_detalle_saldo">Saldo pendiente</string>
+    <string name="item_pedido_abono_format">Abonado: %1$s · Saldo: %2$s</string>
+    <string name="accion_cerrar">Cerrar</string>
     <string name="accion_editar">Editar</string>
     <string name="settings_theme_subtitle">Claro, oscuro o seg\u00FAn el sistema</string>
     <string name="settings_biometric_subtitle">Protege la app con tu huella o PIN</string>
@@ -88,7 +119,7 @@
     <string name="notif_entrega_title">Entrega de pedido</string>
     <string name="notif_entrega_text">El pedido de %s se entrega ma\u00F1ana.</string>
     <string name="notif_corte_title">Corte de tarjeta</string>
-    <string name="notif_corte_text">El corte de %s es en %1$d d\u00EDas.</string>
+    <string name="notif_corte_text">El corte de %1$s es en %2$d d\u00EDas.</string>
     <string name="gastos_dashboard_title">Gastos del mes</string>
     <string name="pedido_resumen_title">Resumen del Pedido</string>
     <string name="pedido_detalle_cliente">Cliente</string>
@@ -231,6 +262,7 @@
     <string name="ayuda_pedidos_title">2. Control de Pedidos</string>
     <string name="ayuda_pedidos_desc">
 <b>Nuevo Pedido:</b> Toca "Nuevo Pedido" en las acciones r\u00E1pidas. Selecciona el cliente, la tienda y la tarjeta (opcional) con los men\u00FAs desplegables, elige las fechas de compra y entrega, y completa montos. El total y la ganancia se calculan solos.\n
+<b>Abonos:</b> Puedes registrar un abono inicial al crear el pedido o marcar "Pagado completo". Despu\u00E9s, toca el pedido y usa "Registrar abono" para sumar pagos parciales y ver el historial. Cuando el saldo llega a cero, el pedido pasa a "Pagado" autom\u00E1ticamente.\n
 <b>Estados:</b> Los pedidos inician como "Por Cobrar". Mant\u00E9n presionado un pedido para cambiar su estado a "Entregado", "Pagado" o "Cancelado".\n
 <b>Resumen:</b> Toca un pedido para ver su resumen completo y usa "Enviar resumen al cliente" para compartirlo por WhatsApp, correo u otra app que tengas instalada.\n
 <b>Filtros:</b> En "Ver Pedidos" puedes buscar por texto y filtrar por estado.\n
@@ -251,13 +283,13 @@
 <b>Historial:</b> Los d\u00EDas con actividad muestran su informaci\u00F3n completa, incluyendo pedidos ya pagados. Toca cualquier pedido para ver su resumen y compartirlo con el cliente.
 </string>
 
-    <string name="ayuda_gastos_title">5. Mis Gastos</string>
+    <string name="ayuda_gastos_title">5. Finanzas</string>
     <string name="ayuda_gastos_desc">
-<b>Registro:</b> En la secci\u00F3n "Mis Gastos" (men\u00FA Finanzas) usa el bot\u00F3n (+) para anotar tus gastos personales: elige categor\u00EDa (Comida, Transporte, Hogar, Servicios, Salud, Entretenimiento, Compras u Otros), monto, fecha y descripci\u00F3n.\n
-<b>Resumen:</b> La pantalla te muestra el total de gastos del mes actual.\n
+<b>Resumen:</b> La secci\u00F3n "Finanzas" te muestra los ingresos del mes (abonos cobrados), los gastos del mes y el balance resultante.\n
+<b>Gastos:</b> Usa el bot\u00F3n (+) para anotar tus gastos personales: elige categor\u00EDa (Comida, Transporte, Hogar, Servicios, Salud, Entretenimiento, Compras u Otros), monto, fecha y descripci\u00F3n.\n
 <b>Filtros:</b> Busca por texto y filtra por rango de fechas (Desde/Hasta). Mant\u00E9n presionado un campo de fecha para limpiarlo.\n
 <b>Editar o borrar:</b> Toca o mant\u00E9n presionado un gasto para editarlo o eliminarlo.\n
-<b>Dashboard:</b> La card "Gastos del mes" del inicio te muestra el acumulado y abre Mis Gastos de un toque.
+<b>Dashboard:</b> La card "Balance del mes" del inicio te muestra el resultado y abre Finanzas de un toque.
 </string>
 
     <string name="ayuda_reportes_title">6. Reportes y Ganancias</string>

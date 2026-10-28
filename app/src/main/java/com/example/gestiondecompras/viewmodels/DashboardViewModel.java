@@ -26,6 +26,8 @@ public class DashboardViewModel extends AndroidViewModel {
     private final MutableLiveData<Double> projectedEarnings = new MutableLiveData<>();
     private final MutableLiveData<java.util.List<Pedido>> upcomingOrders = new MutableLiveData<>();
     private final MutableLiveData<Double> monthExpenses = new MutableLiveData<>();
+    private final MutableLiveData<Double> monthIncome = new MutableLiveData<>();
+    private final MutableLiveData<Double> monthBalance = new MutableLiveData<>();
 
     public DashboardViewModel(@NonNull Application application) {
         super(application);
@@ -61,10 +63,19 @@ public class DashboardViewModel extends AndroidViewModel {
             projectedEarnings.postValue(earnings != null ? earnings : 0d);
 
             java.util.List<Pedido> proximos = db.pedidoDao().getProximosPedidos(System.currentTimeMillis(), 5);
+            if (proximos != null) {
+                for (Pedido pedido : proximos) {
+                    pedido.totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+                }
+            }
             upcomingOrders.postValue(proximos != null ? proximos : Collections.emptyList());
 
             long[] mes = ListaGastosViewModel.inicioYFinDelMes();
-            monthExpenses.postValue(db.gastoDao().getTotalRango(mes[0], mes[1]));
+            double gastos = db.gastoDao().getTotalRango(mes[0], mes[1]);
+            double ingresos = db.abonoDao().getTotalRango(mes[0], mes[1]);
+            monthExpenses.postValue(gastos);
+            monthIncome.postValue(ingresos);
+            monthBalance.postValue(ingresos - gastos);
         });
     }
 
@@ -92,5 +103,13 @@ public class DashboardViewModel extends AndroidViewModel {
 
     public LiveData<Double> getMonthExpenses() {
         return monthExpenses;
+    }
+
+    public LiveData<Double> getMonthIncome() {
+        return monthIncome;
+    }
+
+    public LiveData<Double> getMonthBalance() {
+        return monthBalance;
     }
 }

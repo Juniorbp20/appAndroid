@@ -329,9 +329,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        viewModel.getMonthExpenses().observe(this, total -> {
-            if (total != null) {
-                binding.tvGastosMes.setText(String.format("RD$ %,.2f", total));
+        viewModel.getMonthBalance().observe(this, balance -> {
+            if (balance != null) {
+                binding.tvGastosMes.setText(String.format("RD$ %,.2f", balance));
+                binding.tvGastosMes.setTextColor(ContextCompat.getColor(this,
+                        balance < 0 ? R.color.error_color : R.color.success_color));
             }
         });
     }

@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -138,16 +139,26 @@ public class ListaGastosActivity extends AppCompatActivity implements GastosAdap
             }
         });
 
-        viewModel.getTotalesPorCategoria().observe(this, categorias -> {
-            if (categorias == null || categorias.isEmpty()) {
+        viewModel.getIngresosMes().observe(this, total -> {
+            if (total != null) {
+                binding.tvIngresosMes.setText(String.format(Locale.getDefault(), "RD$ %,.2f", total));
+            }
+        });
+
+        viewModel.getBalanceMes().observe(this, total -> {
+            if (total != null) {
+                binding.tvBalanceMes.setText(String.format(Locale.getDefault(), "RD$ %,.2f", total));
+                binding.tvBalanceMes.setTextColor(ContextCompat.getColor(this,
+                        total < 0 ? R.color.error_color : R.color.success_color));
+            }
+        });
+
+        viewModel.getCantidadMes().observe(this, cantidad -> {
+            if (cantidad == null || cantidad == 0) {
                 binding.tvCantidadMes.setText(getString(R.string.gastos_cantidad_placeholder));
-                return;
+            } else {
+                binding.tvCantidadMes.setText(getString(R.string.gastos_cantidad_format, cantidad));
             }
-            int cantidad = 0;
-            for (com.example.gestiondecompras.models.GastoCategoria c : categorias) {
-                cantidad += c.getCantidad();
-            }
-            binding.tvCantidadMes.setText(getString(R.string.gastos_cantidad_format, cantidad));
         });
     }
 

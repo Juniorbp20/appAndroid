@@ -34,7 +34,7 @@
             <item
                 android:id="@+id/nav_gastos"
                 android:icon="@drawable/ic_wallet"
-                android:title="@string/gastos_title" />
+                android:title="@string/finanzas_title" />
             <item
                 android:id="@+id/nav_reportes"
                 android:icon="@drawable/ic_trending_up"

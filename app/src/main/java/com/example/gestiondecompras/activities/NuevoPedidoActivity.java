@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.databinding.ActivityNuevoPedidoBinding;
+import com.example.gestiondecompras.models.Abono;
 import com.example.gestiondecompras.models.Cliente;
 import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.models.Tarjeta;
@@ -23,6 +24,7 @@ import com.example.gestiondecompras.models.Tienda;
 import com.example.gestiondecompras.viewmodels.NuevoPedidoViewModel;
 
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Objects;
 
 public class NuevoPedidoActivity extends AppCompatActivity {
@@ -33,6 +35,8 @@ public class NuevoPedidoActivity extends AppCompatActivity {
     private final Calendar fechaEntrega = Calendar.getInstance();
     private long pedidoIdEdicion = 0;
     private double originalMonto = 0; // Guardamos el monto original para ediciones
+    private double totalAbonadoOriginal = 0;
+    private String estadoOriginal = Pedido.ESTADO_PENDIENTE;
     private Cliente selectedCliente;
     private Tienda selectedTienda;
     private Tarjeta selectedTarjeta;
@@ -135,6 +139,14 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         binding.etMontoCompra.addTextChangedListener(totalWatcher);
         binding.etGanancia.addTextChangedListener(totalWatcher);
         binding.rgGanancia.addOnButtonCheckedListener((group, checkedId, isChecked) -> updateTotalGeneral());
+        binding.switchPagadoCompleto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            binding.etAbonoInicial.setEnabled(!isChecked);
+            if (isChecked) {
+                updateTotalGeneral();
+            } else {
+                binding.etAbonoInicial.setText("");
+            }
+        });
     }
 
     private void updateTotalGeneral() {
@@ -155,6 +167,9 @@ public class NuevoPedidoActivity extends AppCompatActivity {
             double totalGanancia = isGananciaFija ? ganancia : monto * (ganancia / 100);
             double totalGeneral = monto + totalGanancia;
             binding.tvTotalGeneral.setText(getString(R.string.total_general_amount, totalGeneral));
+            if (binding.switchPagadoCompleto.isChecked()) {
+                binding.etAbonoInicial.setText(String.format(Locale.getDefault(), "%.2f", totalGeneral));
+            }
         } catch (NumberFormatException ex) {
             binding.tvTotalGeneral.setText(getString(R.string.total_general_amount, 0.0));
         }
@@ -168,11 +183,19 @@ public class NuevoPedidoActivity extends AppCompatActivity {
                 binding.btnGuardar.setText("Actualizar Pedido");
                 
                 originalMonto = pedido.getMontoCompra(); // Guardar para validar cambios
+                totalAbonadoOriginal = pedido.getTotalAbonado();
+                estadoOriginal = pedido.getEstado();
                 binding.etMontoCompra.setText(String.valueOf(pedido.getMontoCompra()));
-                
-                binding.rbGananciaFija.setChecked(true); 
+
+                binding.rbGananciaFija.setChecked(true);
                 binding.etGanancia.setText(String.valueOf(pedido.getGanancia()));
                 binding.etNotas.setText(pedido.getNotas());
+
+                binding.layoutAbonoInicial.setVisibility(View.GONE);
+                binding.tvAbonoInfo.setVisibility(View.VISIBLE);
+                binding.tvAbonoInfo.setText(getString(R.string.abono_info_format,
+                        String.format(Locale.getDefault(), "RD$ %,.2f", totalAbonadoOriginal),
+                        String.format(Locale.getDefault(), "RD$ %,.2f", pedido.getSaldo())));
                 
                 if (pedido.fechaRegistroEpoch != null) {
                     fechaRegistro.setTimeInMillis(pedido.fechaRegistroEpoch);
@@ -252,6 +275,30 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         double totalGanancia = isGananciaFija ? ganancia : monto * (ganancia / 100);
         double totalGeneral = monto + totalGanancia;
 
+        double abonoInicial = 0;
+        if (pedidoIdEdicion == 0) {
+            if (binding.switchPagadoCompleto.isChecked()) {
+                abonoInicial = totalGeneral;
+            } else {
+                String abonoTexto = Objects.requireNonNull(binding.etAbonoInicial.getText()).toString().trim();
+                if (!abonoTexto.isEmpty()) {
+                    try {
+                        abonoInicial = Double.parseDouble(abonoTexto);
+                    } catch (NumberFormatException ex) {
+                        Toast.makeText(this, R.string.abono_monto_invalido, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+            }
+            if (abonoInicial < 0 || abonoInicial > totalGeneral + 0.001) {
+                Toast.makeText(this, R.string.abono_excede_total, Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else if (totalGeneral < totalAbonadoOriginal - 0.001) {
+            Toast.makeText(this, R.string.abono_total_menor_abonado, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Pedido pedido = new Pedido();
         if (pedidoIdEdicion > 0) {
             pedido.id = pedidoIdEdicion;
@@ -268,10 +315,25 @@ public class NuevoPedidoActivity extends AppCompatActivity {
         pedido.fechaRegistroEpoch = fechaRegistro.getTimeInMillis();
         pedido.fechaEntregaEpoch = fechaEntrega.getTimeInMillis();
         pedido.notas = Objects.requireNonNull(binding.etNotas.getText()).toString();
-        pedido.estado = Pedido.ESTADO_PENDIENTE;
 
-        viewModel.savePedido(pedido, tarjeta);
-        Toast.makeText(this, "Pedido actualizado", Toast.LENGTH_SHORT).show();
+        if (pedidoIdEdicion > 0) {
+            boolean estabaPagado = Pedido.ESTADO_PAGADO.equalsIgnoreCase(estadoOriginal);
+            boolean sigueCompleto = totalAbonadoOriginal >= totalGeneral - 0.001;
+            if (sigueCompleto && !Pedido.ESTADO_CANCELADO.equalsIgnoreCase(estadoOriginal)) {
+                pedido.estado = Pedido.ESTADO_PAGADO;
+            } else if (estabaPagado) {
+                pedido.estado = Pedido.ESTADO_PENDIENTE;
+            } else {
+                pedido.estado = estadoOriginal;
+            }
+        } else {
+            pedido.estado = abonoInicial >= totalGeneral - 0.001
+                    ? Pedido.ESTADO_PAGADO
+                    : Pedido.ESTADO_PENDIENTE;
+        }
+
+        viewModel.savePedido(pedido, tarjeta, abonoInicial, Abono.METODO_EFECTIVO);
+        Toast.makeText(this, pedidoIdEdicion > 0 ? "Pedido actualizado" : "Pedido guardado", Toast.LENGTH_SHORT).show();
         finish();
     }
 }

@@ -114,6 +114,17 @@
                 tools:text="Ganancia: RD$ 300.00" />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvAbonadoSaldo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/gray"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Abonado: RD$ 200.00 · Saldo: RD$ 800.00"
+            tools:visibility="visible" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

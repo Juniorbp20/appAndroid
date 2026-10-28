@@ -34,6 +34,18 @@ public class PedidoModelTest {
     }
 
     @Test
+    public void saldo_descuentaAbonosYNoEsNegativo() {
+        Pedido p = new Pedido();
+        p.totalGeneral = 1000.0;
+
+        p.setTotalAbonado(300.0);
+        assertEquals(700.0, p.getSaldo(), 0.001);
+
+        p.setTotalAbonado(1200.0);
+        assertEquals(0.0, p.getSaldo(), 0.001);
+    }
+
+    @Test
     public void pedidoCompleto_roundtripDatos() {
         Pedido p = new Pedido();
         p.setClienteId(7);

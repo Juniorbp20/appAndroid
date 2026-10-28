@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.gestiondecompras.database.AppDatabase;
+import com.example.gestiondecompras.models.Abono;
 import com.example.gestiondecompras.models.Cliente;
 import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.models.Tarjeta;
@@ -74,14 +75,14 @@ public class NuevoPedidoViewModel extends AndroidViewModel {
         });
     }
 
-    public void savePedido(Pedido pedido, Tarjeta tarjeta) {
-        executorService.execute(() -> {
+    public void savePedido(Pedido pedido, Tarjeta tarjeta, double abonoInicial, String metodoAbono) {
+        executorService.execute(() -> db.runInTransaction(() -> {
             if (pedido.getId() > 0) {
                 // Obtener el pedido anterior para comparar el monto
                 Pedido oldPedido = db.pedidoDao().getPedidoById(pedido.getId());
                 if (oldPedido != null) {
                     double diff = pedido.getMontoCompra() - oldPedido.getMontoCompra();
-                    
+
                     // Solo actualizar la deuda si hay una diferencia en el monto numérico
                     if (diff != 0 && tarjeta != null && pedido.tarjetaId == tarjeta.id) {
                         tarjeta.setDeudaActual(tarjeta.getDeudaActual() + diff);
@@ -92,19 +93,31 @@ public class NuevoPedidoViewModel extends AndroidViewModel {
             } else {
                 long pedidoId = db.pedidoDao().insert(pedido);
                 pedido.id = pedidoId;
-                
+
                 if (tarjeta != null) {
                     tarjeta.setDeudaActual(tarjeta.getDeudaActual() + pedido.getMontoCompra());
                     db.tarjetaDao().update(tarjeta);
                 }
+
+                if (abonoInicial > 0) {
+                    Abono abono = new Abono();
+                    abono.pedidoId = pedidoId;
+                    abono.monto = abonoInicial;
+                    abono.fechaEpoch = System.currentTimeMillis();
+                    abono.metodo = metodoAbono != null ? metodoAbono : Abono.METODO_EFECTIVO;
+                    db.abonoDao().insert(abono);
+                }
             }
-        });
+        }));
     }
-    
+
     public LiveData<Pedido> getPedido(long id) {
         MutableLiveData<Pedido> pedidoLiveData = new MutableLiveData<>();
         executorService.execute(() -> {
             Pedido p = db.pedidoDao().getPedidoById(id);
+            if (p != null) {
+                p.totalAbonado = db.abonoDao().getTotalAbonado(id);
+            }
             pedidoLiveData.postValue(p);
         });
         return pedidoLiveData;
