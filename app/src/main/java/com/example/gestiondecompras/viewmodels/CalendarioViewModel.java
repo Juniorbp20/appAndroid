@@ -33,7 +33,11 @@ public class CalendarioViewModel extends AndroidViewModel {
 
     public void loadPedidos(long epoch, String busqueda) {
         executorService.execute(() -> {
-            pedidos.postValue(db.pedidoDao().pedidosPorDiaYCliente(epoch, busqueda));
+            List<Pedido> lista = db.pedidoDao().pedidosPorDiaYCliente(epoch, busqueda);
+            for (Pedido pedido : lista) {
+                pedido.totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+            }
+            pedidos.postValue(lista);
         });
     }
 

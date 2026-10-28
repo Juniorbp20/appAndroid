@@ -68,7 +68,7 @@
             android:label="@string/ayuda_title"
             android:parentActivityName=".activities.MainActivity" />
         <activity android:name="com.example.gestiondecompras.activities.ListaGastosActivity"
-            android:label="@string/gastos_title"
+            android:label="@string/finanzas_title"
             android:parentActivityName=".activities.MainActivity" />
         <activity android:name="com.example.gestiondecompras.activities.NuevoGastoActivity"
             android:label="@string/gastos_nuevo"

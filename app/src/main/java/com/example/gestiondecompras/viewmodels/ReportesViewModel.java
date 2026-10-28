@@ -65,6 +65,16 @@ public class ReportesViewModel extends AndroidViewModel {
             Double ganancia = db.reporteDao().gananciaProyectada(desde, hasta, busqueda);
             List<Pedido> porCobrar = db.pedidoDao().getPedidosPorCobrar(desde, hasta, busqueda);
             List<Pedido> pagados = db.pedidoDao().getPedidosPagadosFiltrados(desde, hasta, busqueda);
+            if (porCobrar != null) {
+                for (Pedido pedido : porCobrar) {
+                    pedido.totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+                }
+            }
+            if (pagados != null) {
+                for (Pedido pedido : pagados) {
+                    pedido.totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+                }
+            }
 
             totalCobrado.postValue(cobrado != null ? cobrado : 0d);
             totalPendiente.postValue(pendiente != null ? pendiente : 0d);

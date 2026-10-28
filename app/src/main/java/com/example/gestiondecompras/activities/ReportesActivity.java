@@ -241,7 +241,7 @@ public class ReportesActivity extends AppCompatActivity {
             if (!porCobrarActual.isEmpty()) {
                 drawSectionHeader("PEDIDOS POR COBRAR", COLOR_BLUE, porCobrarActual.size());
                 for (Pedido p : porCobrarActual) {
-                    ensureSpace(86);
+                    ensureSpace(100);
                     drawPedido(p, false);
                 }
             }
@@ -250,7 +250,7 @@ public class ReportesActivity extends AppCompatActivity {
             if (!pagadosActual.isEmpty()) {
                 drawSectionHeader("PEDIDOS PAGADOS", COLOR_GREEN, pagadosActual.size());
                 for (Pedido p : pagadosActual) {
-                    ensureSpace(86);
+                    ensureSpace(100);
                     drawPedido(p, true);
                 }
             }
@@ -317,7 +317,7 @@ public class ReportesActivity extends AppCompatActivity {
     }
 
     private void drawPedido(Pedido p, boolean pagado) {
-        int rowBottom = y + 70;
+        int rowBottom = y + 84;
 
         canvas.drawRoundRect(new RectF(MARGIN, y, PAGE_W - MARGIN, rowBottom), 10, 10, paintFill(COLOR_LIGHT_BG));
 
@@ -359,6 +359,9 @@ public class ReportesActivity extends AppCompatActivity {
         canvas.drawText(totalTxt, PAGE_W - MARGIN - 12 - paint.measureText(totalTxt), y + 66, paint);
         paint.setFakeBoldText(false);
         paint.setColor(COLOR_GRAY);
+
+        canvas.drawText("Abonado: " + moneda(p.getTotalAbonado()) + "     Saldo: " + moneda(p.getSaldo()),
+                MARGIN + 12, y + 80, paint);
 
         y = rowBottom + 10;
 

@@ -14,7 +14,7 @@
         android:layout_marginTop="12dp"
         android:background="@android:color/transparent"
         android:elevation="0dp"
-        android:title="@string/gastos_title"
+        android:title="@string/finanzas_title"
         app:titleCentered="true"
         app:titleTextAppearance="@style/TextAppearance.ToolbarTitleDark"
         app:navigationIcon="@drawable/ic_arrow_back"
@@ -46,26 +46,98 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/gastos_del_mes"
-                    android:textColor="@color/gray"
-                    android:textSize="13sp" />
+                    android:text="@string/finanzas_resumen_mes"
+                    android:textColor="@color/primary_dark"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvTotalMes"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="RD$ 0.00"
-                    android:textColor="@color/error_color"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
-                    tools:text="RD$ 12,500.00" />
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/finanzas_ingresos_mes"
+                        android:textColor="@color/gray"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvIngresosMes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="RD$ 0.00"
+                        android:textColor="@color/success_color"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="RD$ 8,500.00" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/gastos_del_mes"
+                        android:textColor="@color/gray"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvTotalMes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="RD$ 0.00"
+                        android:textColor="@color/error_color"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="RD$ 3,200.00" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/card_stroke" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/finanzas_balance_mes"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBalanceMes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="RD$ 0.00"
+                        android:textColor="@color/primary_dark"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        tools:text="RD$ 5,300.00" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvCantidadMes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="6dp"
                     android:text="@string/gastos_cantidad_placeholder"
                     android:textColor="@color/gray"
                     android:textSize="12sp" />

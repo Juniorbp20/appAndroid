@@ -106,8 +106,12 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
         android.widget.TextView tvCosto = view.findViewById(R.id.tv_detalle_costo);
         android.widget.TextView tvVenta = view.findViewById(R.id.tv_detalle_venta);
         android.widget.TextView tvGanancia = view.findViewById(R.id.tv_detalle_ganancia);
+        android.widget.TextView tvAbonado = view.findViewById(R.id.tv_detalle_abonado);
+        android.widget.TextView tvSaldo = view.findViewById(R.id.tv_detalle_saldo);
         android.widget.TextView tvEstado = view.findViewById(R.id.tv_detalle_estado);
         com.google.android.material.button.MaterialButton btnEnviar = view.findViewById(R.id.btn_enviar_resumen);
+        view.findViewById(R.id.btn_registrar_abono).setVisibility(android.view.View.GONE);
+        view.findViewById(R.id.btn_ver_abonos).setVisibility(android.view.View.GONE);
         
         tvProducto.setText(pedido.getClienteNombre());
         tvTienda.setText(pedido.getTienda());
@@ -118,6 +122,8 @@ public class CalendarioActivity extends AppCompatActivity implements PedidosAdap
         tvCosto.setText(String.format(Locale.getDefault(), "RD$ %,.2f", pedido.getMontoCompra()));
         tvVenta.setText(String.format(Locale.getDefault(), "RD$ %,.2f", pedido.getTotalGeneral()));
         tvGanancia.setText(String.format(Locale.getDefault(), "RD$ %,.2f", pedido.getGanancia()));
+        tvAbonado.setText(String.format(Locale.getDefault(), "RD$ %,.2f", pedido.getTotalAbonado()));
+        tvSaldo.setText(String.format(Locale.getDefault(), "RD$ %,.2f", pedido.getSaldo()));
         
         tvEstado.setText(pedido.getEstado());
         

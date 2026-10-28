@@ -25,6 +25,9 @@ public class ListaGastosViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Gasto>> gastos = new MutableLiveData<>();
     private final MutableLiveData<Double> totalPeriodo = new MutableLiveData<>();
     private final MutableLiveData<Double> totalMes = new MutableLiveData<>();
+    private final MutableLiveData<Double> ingresosMes = new MutableLiveData<>();
+    private final MutableLiveData<Double> balanceMes = new MutableLiveData<>();
+    private final MutableLiveData<Integer> cantidadMes = new MutableLiveData<>();
     private final MutableLiveData<List<GastoCategoria>> totalesPorCategoria = new MutableLiveData<>();
 
     public ListaGastosViewModel(@NonNull Application application) {
@@ -45,6 +48,18 @@ public class ListaGastosViewModel extends AndroidViewModel {
         return totalMes;
     }
 
+    public LiveData<Double> getIngresosMes() {
+        return ingresosMes;
+    }
+
+    public LiveData<Double> getBalanceMes() {
+        return balanceMes;
+    }
+
+    public LiveData<Integer> getCantidadMes() {
+        return cantidadMes;
+    }
+
     public LiveData<List<GastoCategoria>> getTotalesPorCategoria() {
         return totalesPorCategoria;
     }
@@ -61,7 +76,12 @@ public class ListaGastosViewModel extends AndroidViewModel {
             }
 
             long[] mes = inicioYFinDelMes();
-            totalMes.postValue(db.gastoDao().getTotalRango(mes[0], mes[1]));
+            double gastosMes = db.gastoDao().getTotalRango(mes[0], mes[1]);
+            double ingresos = db.abonoDao().getTotalRango(mes[0], mes[1]);
+            totalMes.postValue(gastosMes);
+            ingresosMes.postValue(ingresos);
+            balanceMes.postValue(ingresos - gastosMes);
+            cantidadMes.postValue(db.gastoDao().getCantidadRango(mes[0], mes[1]));
         });
     }
 

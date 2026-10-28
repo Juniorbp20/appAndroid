@@ -66,7 +66,7 @@ public class PedidosAdapter extends RecyclerView.Adapter<PedidosAdapter.PedidoVi
     }
 
     class PedidoViewHolder extends RecyclerView.ViewHolder {
-        TextView tvCliente, tvTienda, tvTotal, tvFechaEntrega, tvGanancia, tvMontoCompra;
+        TextView tvCliente, tvTienda, tvTotal, tvFechaEntrega, tvGanancia, tvMontoCompra, tvAbonadoSaldo;
         Chip chipEstado;
         MaterialCardView card;
         private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -80,6 +80,7 @@ public class PedidosAdapter extends RecyclerView.Adapter<PedidosAdapter.PedidoVi
             tvFechaEntrega = itemView.findViewById(R.id.tvFechaEntrega);
             tvGanancia = itemView.findViewById(R.id.tvGanancia);
             tvMontoCompra = itemView.findViewById(R.id.tvMontoCompra);
+            tvAbonadoSaldo = itemView.findViewById(R.id.tvAbonadoSaldo);
             chipEstado = itemView.findViewById(R.id.tvEstado);
 
             // Click SIEMPRE toma el item por posiciÃƒÂ³n actual:
@@ -117,6 +118,16 @@ public class PedidosAdapter extends RecyclerView.Adapter<PedidosAdapter.PedidoVi
                     ? context.getString(R.string.item_pedido_sin_fecha)
                     : dateFormat.format(p.getFechaEntrega());
             tvFechaEntrega.setText(context.getString(R.string.item_pedido_entrega_format, fechaEntrega));
+
+            boolean mostrarAbono = p.getTotalAbonado() > 0
+                    || (!Pedido.ESTADO_PAGADO.equalsIgnoreCase(p.getEstado())
+                    && !Pedido.ESTADO_CANCELADO.equalsIgnoreCase(p.getEstado()));
+            tvAbonadoSaldo.setVisibility(mostrarAbono ? View.VISIBLE : View.GONE);
+            if (mostrarAbono) {
+                tvAbonadoSaldo.setText(context.getString(R.string.item_pedido_abono_format,
+                        String.format(Locale.getDefault(), "RD$ %,.2f", p.getTotalAbonado()),
+                        String.format(Locale.getDefault(), "RD$ %,.2f", p.getSaldo())));
+            }
 
             chipEstado.setText(p.getEstado());
             chipEstado.setChipBackgroundColor(ColorStateList.valueOf(

@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.gestiondecompras.database.AppDatabase;
+import com.example.gestiondecompras.models.Abono;
 import com.example.gestiondecompras.models.Cliente;
 import com.example.gestiondecompras.models.ClienteGanancia;
 import com.example.gestiondecompras.models.DashboardRow;
@@ -149,8 +150,15 @@ public class PedidoDaoTest {
         ayer.fechaRegistroEpoch = System.currentTimeMillis() - 2 * 86_400_000L;
         dao.insert(ayer);
         dao.insert(nuevoPedido(Pedido.ESTADO_PENDIENTE, "Ana Lopez", 100.0, null));
-        dao.insert(nuevoPedido(Pedido.ESTADO_PAGADO, "Luis Perez", 50.0, null));
+        long pagadoId = dao.insert(nuevoPedido(Pedido.ESTADO_PAGADO, "Luis Perez", 50.0, null));
         dao.insert(nuevoPedido(Pedido.ESTADO_CANCELADO, "Carlos Diaz", 30.0, null));
+
+        Abono abono = new Abono();
+        abono.pedidoId = pagadoId;
+        abono.monto = 50.0;
+        abono.fechaEpoch = System.currentTimeMillis();
+        abono.metodo = Abono.METODO_EFECTIVO;
+        db.abonoDao().insert(abono);
 
         DashboardRow row = dao.getDashboard();
         assertNotNull(row);
@@ -192,10 +200,22 @@ public class PedidoDaoTest {
     @Test
     public void porCobrar_yPagados_conRangoYBusqueda() {
         long hoy = System.currentTimeMillis();
-        dao.insert(nuevoPedido(Pedido.ESTADO_PENDIENTE, "Ana Lopez", 100.0, null));
-        dao.insert(nuevoPedido(Pedido.ESTADO_ENTREGADO, "Luis Perez", 200.0, null));
-        dao.insert(nuevoPedido(Pedido.ESTADO_PAGADO, "Carlos Diaz", 300.0, null));
-        dao.insert(nuevoPedido(Pedido.ESTADO_CANCELADO, "Diana Ruiz", 400.0, null));
+
+        Pedido pendiente = nuevoPedido(Pedido.ESTADO_PENDIENTE, "Ana Lopez", 100.0, null);
+        pendiente.fechaRegistroEpoch = hoy;
+        dao.insert(pendiente);
+
+        Pedido entregado = nuevoPedido(Pedido.ESTADO_ENTREGADO, "Luis Perez", 200.0, null);
+        entregado.fechaRegistroEpoch = hoy + 10_000L;
+        dao.insert(entregado);
+
+        Pedido pagado = nuevoPedido(Pedido.ESTADO_PAGADO, "Carlos Diaz", 300.0, null);
+        pagado.fechaRegistroEpoch = hoy;
+        dao.insert(pagado);
+
+        Pedido cancelado = nuevoPedido(Pedido.ESTADO_CANCELADO, "Diana Ruiz", 400.0, null);
+        cancelado.fechaRegistroEpoch = hoy;
+        dao.insert(cancelado);
 
         assertEquals(2, dao.getPedidosPorCobrar(null, null, "").size());
         assertEquals(1, dao.getPedidosPorCobrar(null, null, "Luis").size());

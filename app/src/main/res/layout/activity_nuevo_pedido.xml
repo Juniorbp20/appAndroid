@@ -156,6 +156,44 @@
                             android:layout_height="wrap_content"
                             android:inputType="numberDecimal" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_abono_inicial"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/abono_inicial">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_abono_inicial"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switch_pagado_completo"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/pagado_completo" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_abono_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/gray"
+                        android:textSize="13sp"
+                        android:visibility="gone"
+                        tools:text="Abonado: RD$ 0.00 · Saldo: RD$ 1,000.00"
+                        tools:visibility="visible" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

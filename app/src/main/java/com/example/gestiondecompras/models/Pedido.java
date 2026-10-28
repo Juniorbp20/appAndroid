@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
@@ -49,6 +50,9 @@ public class Pedido {
     @NonNull
     @ColumnInfo(name = "estado", defaultValue = ESTADO_PENDIENTE)
     public String estado = ESTADO_PENDIENTE;
+
+    @Ignore
+    public double totalAbonado;
 
     public static final String ESTADO_PENDIENTE = "pendiente";
     public static final String ESTADO_ENTREGADO = "entregado";
@@ -178,5 +182,21 @@ public class Pedido {
 
     public void setEstado(@NonNull String estado) {
         this.estado = estado;
+    }
+
+    public double getTotalAbonado() {
+        return totalAbonado;
+    }
+
+    public void setTotalAbonado(double totalAbonado) {
+        this.totalAbonado = totalAbonado;
+    }
+
+    public double getSaldo() {
+        return Math.max(0, totalGeneral - totalAbonado);
+    }
+
+    public boolean estaPagadoCompleto() {
+        return totalAbonado >= totalGeneral - 0.001;
     }
 }

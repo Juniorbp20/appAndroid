@@ -35,6 +35,9 @@ public interface GastoDao {
     @Query("SELECT COALESCE(SUM(monto), 0) FROM gastos WHERE fechaEpoch >= :desde AND fechaEpoch <= :hasta")
     double getTotalRango(long desde, long hasta);
 
+    @Query("SELECT COUNT(*) FROM gastos WHERE fechaEpoch >= :desde AND fechaEpoch <= :hasta")
+    int getCantidadRango(long desde, long hasta);
+
     @Query("SELECT categoria, COUNT(*) AS cantidad, SUM(monto) AS total FROM gastos "
             + "WHERE fechaEpoch >= :desde AND fechaEpoch <= :hasta "
             + "GROUP BY categoria ORDER BY total DESC")

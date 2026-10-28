@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.gestiondecompras.database.AppDatabase;
+import com.example.gestiondecompras.models.Abono;
 import com.example.gestiondecompras.models.Cliente;
 import com.example.gestiondecompras.models.Pedido;
 
@@ -53,12 +54,23 @@ public class ReporteDaoTest {
         return p;
     }
 
+    private void insertarAbono(long pedidoId, double monto, long fecha) {
+        Abono abono = new Abono();
+        abono.pedidoId = pedidoId;
+        abono.monto = monto;
+        abono.fechaEpoch = fecha;
+        abono.metodo = Abono.METODO_EFECTIVO;
+        db.abonoDao().insert(abono);
+    }
+
     @Test
     public void totalCobrado_soloPagados() {
-        db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 100.0, null));
-        db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 50.0, null));
+        long pagado1 = db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 100.0, null));
+        long pagado2 = db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 50.0, null));
         db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PENDIENTE, 80.0, null));
         db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_CANCELADO, 30.0, null));
+        insertarAbono(pagado1, 100.0, HOY);
+        insertarAbono(pagado2, 50.0, HOY);
 
         assertEquals(150.0, dao.totalCobrado(null, null, ""), 0.001);
         assertEquals(80.0, dao.totalPendiente(null, null, ""), 0.001);
@@ -68,8 +80,10 @@ public class ReporteDaoTest {
 
     @Test
     public void totalesFiltrados_porRangoYBusqueda() {
-        db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 100.0, HOY - 5_000_000_000L));
-        db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 50.0, HOY));
+        long viejo = db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 100.0, HOY - 5_000_000_000L));
+        long nuevo = db.pedidoDao().insert(nuevoPedido(Pedido.ESTADO_PAGADO, 50.0, HOY));
+        insertarAbono(viejo, 100.0, HOY - 5_000_000_000L);
+        insertarAbono(nuevo, 50.0, HOY);
 
         assertEquals(150.0, dao.totalCobrado(null, null, ""), 0.001);
         assertEquals(50.0, dao.totalCobrado(HOY - 1000L, null, ""), 0.001);

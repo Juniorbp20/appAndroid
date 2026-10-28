@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.gestiondecompras.database.AppDatabase;
+import com.example.gestiondecompras.models.Abono;
 import com.example.gestiondecompras.models.Pedido;
 
 import java.util.ArrayList;
@@ -49,8 +50,56 @@ public class ListaPedidosViewModel extends AndroidViewModel {
                 resultado = db.pedidoDao().getPedidosFiltrados(estadoQuery, trimmedSearch, clienteId);
             }
 
+            for (Pedido pedido : resultado) {
+                pedido.totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+            }
             pedidos.postValue(resultado);
         });
+    }
+
+    public void registrarAbono(Pedido pedido, double monto, String metodo, String notas,
+                               MutableLiveData<Boolean> resultado) {
+        executorService.execute(() -> db.runInTransaction(() -> {
+            Abono abono = new Abono();
+            abono.pedidoId = pedido.getId();
+            abono.monto = monto;
+            abono.fechaEpoch = System.currentTimeMillis();
+            abono.metodo = metodo;
+            abono.notas = notas;
+            db.abonoDao().insert(abono);
+
+            double totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+            pedido.totalAbonado = totalAbonado;
+            if (pedido.estaPagadoCompleto()) {
+                pedido.estado = Pedido.ESTADO_PAGADO;
+            }
+            db.pedidoDao().update(pedido);
+            resultado.postValue(true);
+        }));
+    }
+
+    public void eliminarAbono(Pedido pedido, Abono abono, MutableLiveData<Boolean> resultado) {
+        executorService.execute(() -> db.runInTransaction(() -> {
+            db.abonoDao().delete(abono);
+
+            double totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+            pedido.totalAbonado = totalAbonado;
+            if (Pedido.ESTADO_PAGADO.equalsIgnoreCase(pedido.getEstado())
+                    && !pedido.estaPagadoCompleto()) {
+                pedido.estado = Pedido.ESTADO_PENDIENTE;
+            }
+            db.pedidoDao().update(pedido);
+            resultado.postValue(true);
+        }));
+    }
+
+    public LiveData<List<Abono>> getAbonos(long pedidoId) {
+        MutableLiveData<List<Abono>> abonos = new MutableLiveData<>();
+        executorService.execute(() -> {
+            List<Abono> lista = db.abonoDao().getAbonosPorPedido(pedidoId);
+            abonos.postValue(lista != null ? lista : new ArrayList<>());
+        });
+        return abonos;
     }
 
     public void deletePedido(Pedido pedido) {

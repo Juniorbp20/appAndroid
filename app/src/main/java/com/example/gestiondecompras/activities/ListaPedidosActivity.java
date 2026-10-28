@@ -1,6 +1,7 @@
 package com.example.gestiondecompras.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,17 +11,23 @@ import android.widget.ArrayAdapter;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gestiondecompras.R;
+import com.example.gestiondecompras.adapters.AbonosAdapter;
 import com.example.gestiondecompras.adapters.PedidosAdapter;
 import com.example.gestiondecompras.databinding.ActivityListaPedidosBinding;
+import com.example.gestiondecompras.models.Abono;
 import com.example.gestiondecompras.models.Pedido;
 import com.example.gestiondecompras.viewmodels.ListaPedidosViewModel;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Locale;
 
 public class ListaPedidosActivity extends AppCompatActivity implements PedidosAdapter.OnPedidoClickListener {
 
@@ -163,9 +170,13 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         android.widget.TextView tvCosto = view.findViewById(R.id.tv_detalle_costo);
         android.widget.TextView tvVenta = view.findViewById(R.id.tv_detalle_venta);
         android.widget.TextView tvGanancia = view.findViewById(R.id.tv_detalle_ganancia);
+        android.widget.TextView tvAbonado = view.findViewById(R.id.tv_detalle_abonado);
+        android.widget.TextView tvSaldo = view.findViewById(R.id.tv_detalle_saldo);
         android.widget.TextView tvEstado = view.findViewById(R.id.tv_detalle_estado);
         com.google.android.material.button.MaterialButton btnEnviar = view.findViewById(R.id.btn_enviar_resumen);
-        
+        com.google.android.material.button.MaterialButton btnRegistrarAbono = view.findViewById(R.id.btn_registrar_abono);
+        com.google.android.material.button.MaterialButton btnVerAbonos = view.findViewById(R.id.btn_ver_abonos);
+
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
         
         tvProducto.setText(pedido.getClienteNombre());
@@ -177,35 +188,168 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         tvCosto.setText(String.format("RD$ %,.2f", pedido.getMontoCompra()));
         tvVenta.setText(String.format("RD$ %,.2f", pedido.getTotalGeneral()));
         tvGanancia.setText(String.format("RD$ %,.2f", pedido.getGanancia()));
-        
-        tvEstado.setText(pedido.getEstado());
-        
-        int colorRes;
-        if (Pedido.ESTADO_PAGADO.equalsIgnoreCase(pedido.getEstado())) {
-            colorRes = R.color.status_paid;
-        } else if (Pedido.ESTADO_ENTREGADO.equalsIgnoreCase(pedido.getEstado())) {
-            colorRes = R.color.status_delivered;
-        } else if (Pedido.ESTADO_CANCELADO.equalsIgnoreCase(pedido.getEstado())) {
-            colorRes = R.color.status_cancelled;
-        } else {
-            colorRes = R.color.status_pending;
-        }
-        
-        tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-            androidx.core.content.ContextCompat.getColor(this, colorRes)
-        ));
-        tvEstado.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
+        tvAbonado.setText(moneda(pedido.getTotalAbonado()));
+        tvSaldo.setText(moneda(pedido.getSaldo()));
+
+        aplicarEstado(tvEstado, pedido.getEstado());
 
         btnEnviar.setOnClickListener(v -> enviarResumenCliente(pedido, sdf));
 
-        builder.setView(view)
+        AlertDialog dialog = builder.setView(view)
                .setPositiveButton("Cerrar", null)
-               .setNeutralButton("Editar", (dialog, which) -> {
+               .setNeutralButton("Editar", (d, which) -> {
+                   d.dismiss();
                    Intent i = new Intent(this, NuevoPedidoActivity.class);
                    i.putExtra("pedido_id", pedido.getId());
                    startActivity(i);
                })
-               .show();
+               .create();
+
+        btnRegistrarAbono.setOnClickListener(v ->
+                mostrarDialogoAbono(pedido, tvAbonado, tvSaldo, tvEstado));
+        btnVerAbonos.setOnClickListener(v ->
+                mostrarHistorialAbonos(pedido, tvAbonado, tvSaldo, tvEstado));
+
+        dialog.show();
+    }
+
+    private void mostrarDialogoAbono(Pedido pedido, android.widget.TextView tvAbonado,
+                                     android.widget.TextView tvSaldo, android.widget.TextView tvEstado) {
+        if (Pedido.ESTADO_CANCELADO.equalsIgnoreCase(pedido.getEstado())) {
+            Snackbar.make(binding.rvPedidos, R.string.abono_pedido_cancelado, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        if (pedido.getSaldo() <= 0.001) {
+            Snackbar.make(binding.rvPedidos, R.string.abono_pedido_pagado, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_registrar_abono, null);
+        android.widget.TextView tvSaldoActual = view.findViewById(R.id.tv_saldo_abono);
+        android.widget.EditText etMonto = view.findViewById(R.id.et_monto_abono);
+        android.widget.EditText etNotas = view.findViewById(R.id.et_notas_abono);
+        android.widget.AutoCompleteTextView spinnerMetodo = view.findViewById(R.id.spinner_metodo_abono);
+
+        tvSaldoActual.setText(getString(R.string.abono_saldo_actual_format, moneda(pedido.getSaldo())));
+        spinnerMetodo.setAdapter(new ArrayAdapter<>(this, R.layout.item_dropdown, Abono.METODOS));
+        spinnerMetodo.setText(Abono.METODO_EFECTIVO, false);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .setPositiveButton(R.string.abono_guardar, null)
+                .setNegativeButton(R.string.accion_cancelar, null)
+                .create();
+
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String montoTexto = etMonto.getText() != null ? etMonto.getText().toString().trim() : "";
+            double monto;
+            try {
+                monto = Double.parseDouble(montoTexto);
+            } catch (NumberFormatException ex) {
+                etMonto.setError(getString(R.string.abono_monto_invalido));
+                return;
+            }
+            if (monto <= 0) {
+                etMonto.setError(getString(R.string.abono_monto_invalido));
+                return;
+            }
+            if (monto > pedido.getSaldo() + 0.001) {
+                etMonto.setError(getString(R.string.abono_excede_saldo));
+                return;
+            }
+
+            String metodo = spinnerMetodo.getText() != null
+                    ? spinnerMetodo.getText().toString() : Abono.METODO_EFECTIVO;
+            String notas = etNotas.getText() != null ? etNotas.getText().toString().trim() : "";
+
+            MutableLiveData<Boolean> resultado = new MutableLiveData<>();
+            resultado.observe(this, ok -> {
+                if (Boolean.TRUE.equals(ok)) {
+                    tvAbonado.setText(moneda(pedido.getTotalAbonado()));
+                    tvSaldo.setText(moneda(pedido.getSaldo()));
+                    aplicarEstado(tvEstado, pedido.getEstado());
+                    Snackbar.make(binding.rvPedidos, R.string.abono_guardado, Snackbar.LENGTH_SHORT).show();
+                    cargarPedidos();
+                    dialog.dismiss();
+                }
+            });
+            viewModel.registrarAbono(pedido, monto, metodo, notas, resultado);
+        }));
+
+        dialog.show();
+    }
+
+    private void mostrarHistorialAbonos(Pedido pedido, android.widget.TextView tvAbonado,
+                                        android.widget.TextView tvSaldo, android.widget.TextView tvEstado) {
+        View view = getLayoutInflater().inflate(R.layout.dialog_historial_abonos, null);
+        RecyclerView rvAbonos = view.findViewById(R.id.rv_abonos);
+        android.widget.TextView tvTotal = view.findViewById(R.id.tv_total_abonado);
+        android.widget.TextView tvVacio = view.findViewById(R.id.tv_abonos_vacio);
+
+        tvTotal.setText(getString(R.string.abono_total_format, moneda(pedido.getTotalAbonado())));
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .setPositiveButton(R.string.accion_cerrar, null)
+                .create();
+
+        AbonosAdapter adapter = new AbonosAdapter(abono ->
+                confirmarEliminarAbono(pedido, abono, dialog, tvAbonado, tvSaldo, tvEstado));
+        rvAbonos.setLayoutManager(new LinearLayoutManager(this));
+        rvAbonos.setAdapter(adapter);
+
+        viewModel.getAbonos(pedido.getId()).observe(this, abonos -> {
+            adapter.actualizarLista(abonos);
+            boolean vacio = abonos == null || abonos.isEmpty();
+            tvVacio.setVisibility(vacio ? View.VISIBLE : View.GONE);
+            rvAbonos.setVisibility(vacio ? View.GONE : View.VISIBLE);
+        });
+
+        dialog.show();
+    }
+
+    private void confirmarEliminarAbono(Pedido pedido, Abono abono, AlertDialog historialDialog,
+                                        android.widget.TextView tvAbonado, android.widget.TextView tvSaldo,
+                                        android.widget.TextView tvEstado) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.abono_eliminar_title)
+                .setMessage(R.string.abono_eliminar_message)
+                .setPositiveButton(R.string.accion_eliminar, (d, which) -> {
+                    MutableLiveData<Boolean> resultado = new MutableLiveData<>();
+                    resultado.observe(this, ok -> {
+                        if (Boolean.TRUE.equals(ok)) {
+                            tvAbonado.setText(moneda(pedido.getTotalAbonado()));
+                            tvSaldo.setText(moneda(pedido.getSaldo()));
+                            aplicarEstado(tvEstado, pedido.getEstado());
+                            Snackbar.make(binding.rvPedidos, R.string.abono_eliminado, Snackbar.LENGTH_SHORT).show();
+                            cargarPedidos();
+                            historialDialog.dismiss();
+                        }
+                    });
+                    viewModel.eliminarAbono(pedido, abono, resultado);
+                })
+                .setNegativeButton(R.string.accion_cancelar, null)
+                .show();
+    }
+
+    private String moneda(double valor) {
+        return String.format(Locale.getDefault(), "RD$ %,.2f", valor);
+    }
+
+    private void aplicarEstado(android.widget.TextView tvEstado, String estado) {
+        int colorRes;
+        if (Pedido.ESTADO_PAGADO.equalsIgnoreCase(estado)) {
+            colorRes = R.color.status_paid;
+        } else if (Pedido.ESTADO_ENTREGADO.equalsIgnoreCase(estado)) {
+            colorRes = R.color.status_delivered;
+        } else if (Pedido.ESTADO_CANCELADO.equalsIgnoreCase(estado)) {
+            colorRes = R.color.status_cancelled;
+        } else {
+            colorRes = R.color.status_pending;
+        }
+        tvEstado.setText(estado);
+        tvEstado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, colorRes)));
+        tvEstado.setTextColor(ContextCompat.getColor(this, R.color.white));
     }
 
     private void enviarResumenCliente(Pedido pedido, java.text.SimpleDateFormat sdf) {
@@ -276,10 +420,33 @@ public class ListaPedidosActivity extends AppCompatActivity implements PedidosAd
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_change_estado_title)
                 .setSingleChoiceItems(labels, seleccionado, (dialog, which) -> {
-                    pedido.estado = valores[which];
-                    viewModel.updatePedido(pedido);
-                    Snackbar.make(binding.rvPedidos, getString(R.string.pedidos_estado_actualizado, labels[which]), Snackbar.LENGTH_SHORT).show();
-                    adapter.notifyDataSetChanged();
+                    String nuevoEstado = valores[which];
+                    if (!Pedido.ESTADO_PAGADO.equals(nuevoEstado)
+                            && !Pedido.ESTADO_CANCELADO.equals(nuevoEstado)
+                            && pedido.getSaldo() <= 0.001) {
+                        Snackbar.make(binding.rvPedidos, R.string.abono_pedido_pagado,
+                                Snackbar.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        return;
+                    }
+                    if (Pedido.ESTADO_PAGADO.equals(nuevoEstado) && pedido.getSaldo() > 0.001) {
+                        MutableLiveData<Boolean> resultado = new MutableLiveData<>();
+                        resultado.observe(this, ok -> {
+                            if (Boolean.TRUE.equals(ok)) {
+                                Snackbar.make(binding.rvPedidos,
+                                        getString(R.string.pedidos_estado_actualizado, labels[which]),
+                                        Snackbar.LENGTH_SHORT).show();
+                                cargarPedidos();
+                            }
+                        });
+                        viewModel.registrarAbono(pedido, pedido.getSaldo(),
+                                Abono.METODO_EFECTIVO, "Pago completo", resultado);
+                    } else {
+                        pedido.estado = nuevoEstado;
+                        viewModel.updatePedido(pedido);
+                        Snackbar.make(binding.rvPedidos, getString(R.string.pedidos_estado_actualizado, labels[which]), Snackbar.LENGTH_SHORT).show();
+                        adapter.notifyDataSetChanged();
+                    }
                     dialog.dismiss();
                 })
                 .setNegativeButton(R.string.accion_cancelar, null)

@@ -1,6 +1,7 @@
 package com.example.gestiondecompras.workers;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -58,6 +59,9 @@ public class NotificationWorker extends Worker {
         long manana = mananaCal.getTimeInMillis();
 
         List<Pedido> porCobrar = db.pedidoDao().getPedidosPorCobrar(null, null, "");
+        for (Pedido pedido : porCobrar) {
+            pedido.totalAbonado = db.abonoDao().getTotalAbonado(pedido.getId());
+        }
         int atrasados = db.pedidoDao().getOverdueOrdersCount(hoy);
         List<Pedido> entregasManana = db.pedidoDao().getEntregasPorDia(manana);
 
@@ -91,7 +95,7 @@ public class NotificationWorker extends Worker {
 
         double totalPorCobrar = 0;
         for (Pedido p : porCobrar) {
-            totalPorCobrar += p.getTotalGeneral();
+            totalPorCobrar += p.getSaldo();
         }
         if (!porCobrar.isEmpty()) {
             detalle.append(String.format(Locale.getDefault(),
@@ -155,6 +159,7 @@ public class NotificationWorker extends Worker {
                 .setAutoCancel(true);
     }
 
+    @SuppressLint("MissingPermission")
     private void notificar(int id, NotificationCompat.Builder builder) {
         NotificationManagerCompat.from(getApplicationContext()).notify(id, builder.build());
     }
