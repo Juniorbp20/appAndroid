@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tv_download_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/descargando_actualizacion"
+        android:textColor="@color/gray_dark"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="12dp"
+        android:indeterminate="false"
+        app:indicatorColor="@color/primary_color"
+        app:trackColor="@color/card_stroke"
+        app:trackCornerRadius="4dp"
+        app:trackThickness="8dp" />
+
+    <TextView
+        android:id="@+id/tv_progress_percent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="0% (0.0 MB / 0.0 MB)"
+        android:textColor="@color/gray"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
