@@ -1,10 +1,8 @@
 package com.example.gestiondecompras.utils;
 
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -20,10 +18,20 @@ import androidx.core.content.FileProvider;
 import com.example.gestiondecompras.R;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class UpdateHelper {
+
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
+    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
     private UpdateHelper() {
     }
@@ -65,26 +73,8 @@ public class UpdateHelper {
     public static void iniciarDescargaConProgreso(Activity activity, String apkUrl) {
         File destino = new File(activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "gestion-compras.apk");
         if (destino.exists()) {
+            //noinspection ResultOfMethodCallIgnored
             destino.delete();
-        }
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl));
-        request.setTitle(activity.getString(R.string.descargando_actualizacion));
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationUri(Uri.fromFile(destino));
-
-        DownloadManager dm = (DownloadManager) activity.getSystemService(Context.DOWNLOAD_SERVICE);
-        if (dm == null) {
-            Toast.makeText(activity, R.string.error_descarga, Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        long downloadId;
-        try {
-            downloadId = dm.enqueue(request);
-        } catch (Exception e) {
-            Toast.makeText(activity, R.string.error_descarga, Toast.LENGTH_LONG).show();
-            return;
         }
 
         View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_download_progress, null);
@@ -98,58 +88,94 @@ public class UpdateHelper {
 
         progressDialog.show();
 
-        Handler handler = new Handler(Looper.getMainLooper());
-        Runnable checkRunnable = new Runnable() {
-            int intentosFail = 0;
+        descargarDirecto(activity, apkUrl, destino, progressDialog, progressBar, tvProgressPercent);
+    }
 
-            @Override
-            public void run() {
-                if (activity.isFinishing() || activity.isDestroyed()) {
-                    return;
-                }
+    private static void descargarDirecto(Activity activity, String apkUrl, File destino, AlertDialog progressDialog, LinearProgressIndicator progressBar, TextView tvProgressPercent) {
+        EXECUTOR.execute(() -> {
+            boolean exito = false;
+            try {
+                String currentUrl = apkUrl;
+                HttpURLConnection conn = null;
+                int redirects = 0;
 
-                DownloadManager.Query query = new DownloadManager.Query().setFilterById(downloadId);
-                try (Cursor cursor = dm.query(query)) {
-                    if (cursor != null && cursor.moveToFirst()) {
-                        int statusIdx = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                        int downloadedIdx = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR);
-                        int totalIdx = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES);
+                while (redirects < 5) {
+                    conn = (HttpURLConnection) new URL(currentUrl).openConnection();
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(15000);
+                    conn.setRequestProperty("User-Agent", "GestionDeComprasApp");
+                    conn.setRequestProperty("Accept-Encoding", "identity");
+                    conn.setInstanceFollowRedirects(true);
 
-                        int status = cursor.getInt(statusIdx);
-                        long bytesDownloaded = cursor.getLong(downloadedIdx);
-                        long bytesTotal = cursor.getLong(totalIdx);
-
-                        if (bytesTotal > 0) {
-                            int progress = (int) ((bytesDownloaded * 100) / bytesTotal);
-                            progressBar.setProgress(progress);
-                            float downloadedMb = bytesDownloaded / (1024f * 1024f);
-                            float totalMb = bytesTotal / (1024f * 1024f);
-                            tvProgressPercent.setText(String.format(Locale.getDefault(), "%d%% (%.1f MB / %.1f MB)", progress, downloadedMb, totalMb));
-                        }
-
-                        if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                            progressDialog.dismiss();
-                            instalarApk(activity, destino);
-                            return;
-                        } else if (status == DownloadManager.STATUS_FAILED) {
-                            progressDialog.dismiss();
-                            Toast.makeText(activity, R.string.error_descarga, Toast.LENGTH_LONG).show();
-                            return;
+                    int code = conn.getResponseCode();
+                    if (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP || code == 307 || code == 308) {
+                        String location = conn.getHeaderField("Location");
+                        if (location != null && !location.isEmpty()) {
+                            currentUrl = location;
+                            conn.disconnect();
+                            redirects++;
+                            continue;
                         }
                     }
-                } catch (Exception ignored) {
+                    break;
                 }
 
-                if (intentosFail++ < 200) {
-                    handler.postDelayed(this, 500);
-                } else {
-                    progressDialog.dismiss();
-                    Toast.makeText(activity, R.string.error_instalacion, Toast.LENGTH_LONG).show();
+                if (conn != null && conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    long totalBytes = conn.getContentLengthLong();
+
+                    try (InputStream in = new BufferedInputStream(conn.getInputStream(), 128 * 1024);
+                         FileOutputStream out = new FileOutputStream(destino)) {
+
+                        byte[] buffer = new byte[128 * 1024];
+                        int bytesRead;
+                        long totalDownloaded = 0;
+                        long lastUpdate = 0;
+
+                        while ((bytesRead = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, bytesRead);
+                            totalDownloaded += bytesRead;
+
+                            long currentDownloaded = totalDownloaded;
+                            long now = System.currentTimeMillis();
+
+                            if (now - lastUpdate > 50 || currentDownloaded == totalBytes) {
+                                lastUpdate = now;
+                                MAIN_HANDLER.post(() -> {
+                                    if (activity.isFinishing() || activity.isDestroyed()) return;
+                                    if (totalBytes > 0) {
+                                        int progress = (int) ((currentDownloaded * 100) / totalBytes);
+                                        progressBar.setProgress(progress);
+                                        float downloadedMb = currentDownloaded / (1024f * 1024f);
+                                        float totalMb = totalBytes / (1024f * 1024f);
+                                        tvProgressPercent.setText(String.format(Locale.getDefault(), "%d%% (%.1f MB / %.1f MB)", progress, downloadedMb, totalMb));
+                                    } else {
+                                        progressBar.setIndeterminate(true);
+                                        float downloadedMb = currentDownloaded / (1024f * 1024f);
+                                        tvProgressPercent.setText(String.format(Locale.getDefault(), "%.1f MB", downloadedMb));
+                                    }
+                                });
+                            }
+                        }
+                        out.flush();
+                        exito = totalDownloaded > 0;
+                    }
+                    conn.disconnect();
                 }
+            } catch (Exception e) {
+                exito = false;
             }
-        };
 
-        handler.post(checkRunnable);
+            boolean finalExito = exito;
+            MAIN_HANDLER.post(() -> {
+                if (activity.isFinishing() || activity.isDestroyed()) return;
+                progressDialog.dismiss();
+                if (finalExito && destino.exists() && destino.length() > 0) {
+                    instalarApk(activity, destino);
+                } else {
+                    Toast.makeText(activity, R.string.error_descarga, Toast.LENGTH_LONG).show();
+                }
+            });
+        });
     }
 
     public static void instalarApk(Context context, File apk) {

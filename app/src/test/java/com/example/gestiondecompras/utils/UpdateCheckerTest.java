@@ -34,7 +34,7 @@ public class UpdateCheckerTest {
 
     @Test
     public void versionMayor_conTresPartes() {
-        assertTrue(UpdateChecker.esNuevaVersion("1.0.3"));
+        assertTrue(UpdateChecker.esNuevaVersion("1.0.4"));
         assertTrue(UpdateChecker.esNuevaVersion("1.1.0"));
     }
 
