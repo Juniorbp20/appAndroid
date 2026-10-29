@@ -54,7 +54,13 @@ jobs:
 
       - name: Renombrar APK
         shell: bash
-        run: mv app/build/outputs/apk/release/app-release.apk "GestionCompras-${{ github.ref_name }}.apk"
+        run: |
+          FOUND_APK=$(find app/build/outputs/apk/release/ -name "*.apk" | head -n 1)
+          if [ -n "$FOUND_APK" ]; then
+            mv "$FOUND_APK" "GestionCompras-${GITHUB_REF_NAME}.apk"
+          else
+            echo "No se encontró ningún APK en app/build/outputs/apk/release/" && exit 1
+          fi
 
       - name: Subir artefacto del build
         uses: actions/upload-artifact@v4
