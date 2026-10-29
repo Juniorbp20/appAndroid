@@ -316,4 +316,7 @@
     <string name="descargando_actualizacion">Gestión de Compras - actualización</string>
     <string name="error_descarga">No se pudo iniciar la descarga</string>
     <string name="error_instalacion">La actualización falló; inténtalo de nuevo</string>
+    <string name="buscar_actualizaciones">Buscar actualizaciones</string>
+    <string name="comprobando_actualizaciones">Buscando actualizaciones...</string>
+    <string name="app_actualizada">Tu aplicación ya está actualizada</string>
 </resources>

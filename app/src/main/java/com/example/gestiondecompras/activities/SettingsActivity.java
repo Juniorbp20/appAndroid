@@ -1,16 +1,26 @@
 package com.example.gestiondecompras.activities;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.FileProvider;
 
+import com.example.gestiondecompras.R;
 import com.example.gestiondecompras.databinding.ActivitySettingsBinding;
 import com.example.gestiondecompras.utils.GoogleDriveService;
+import com.example.gestiondecompras.utils.UpdateChecker;
 import com.example.gestiondecompras.database.AppDatabase;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,6 +46,9 @@ public class SettingsActivity extends AppCompatActivity {
     private GoogleDriveService googleDriveService;
     private Runnable pendingAction;
     private static final String DB_NAME = "GestionCompras.db";
+    private long downloadId = -1;
+    private int intentosDescarga = 0;
+    private final Handler actualizacionHandler = new Handler(Looper.getMainLooper());
 
     private final ActivityResultLauncher<android.content.Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -126,6 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         binding.btnReset.setOnClickListener(v -> showResetConfirmation());
         binding.btnContact.setOnClickListener(v -> contactSupport());
+        binding.btnCheckUpdate.setOnClickListener(v -> checkUpdatesManually());
         binding.btnSaveSettings.setOnClickListener(v -> saveSettings());
 
         binding.btnDriveBackup.setOnClickListener(v -> {
@@ -311,5 +325,92 @@ public class SettingsActivity extends AppCompatActivity {
          if (intent.resolveActivity(getPackageManager()) != null) {
              startActivity(intent);
          }
+    }
+
+    private void checkUpdatesManually() {
+        Toast.makeText(this, R.string.comprobando_actualizaciones, Toast.LENGTH_SHORT).show();
+        UpdateChecker.check(new UpdateChecker.Callback() {
+            @Override
+            public void onUpdateAvailable(String version, String apkUrl) {
+                mostrarDialogoActualizacion(version, apkUrl);
+            }
+
+            @Override
+            public void onNoUpdate() {
+                Toast.makeText(SettingsActivity.this, R.string.app_actualizada, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void mostrarDialogoActualizacion(String version, String apkUrl) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.actualizacion_disponible)
+                .setMessage(getString(R.string.actualizacion_mensaje, version))
+                .setPositiveButton(R.string.actualizar, (d, w) -> descargarApk(apkUrl))
+                .setNegativeButton(R.string.ahora_no, null)
+                .show();
+    }
+
+    private void descargarApk(String url) {
+        try {
+            File destino = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "gestion-compras.apk");
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            request.setTitle(getString(R.string.descargando_actualizacion));
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setDestinationUri(Uri.fromFile(destino));
+            downloadId = ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(request);
+            Toast.makeText(this, R.string.descarga_iniciada, Toast.LENGTH_LONG).show();
+            intentosDescarga = 0;
+            esperarDescarga();
+        } catch (Exception e) {
+            Toast.makeText(this, R.string.error_descarga, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void esperarDescarga() {
+        actualizacionHandler.postDelayed(() -> {
+            int status = -1;
+            try {
+                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                try (android.database.Cursor cursor = dm.query(new DownloadManager.Query().setFilterById(downloadId))) {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                instalarApk();
+            } else if (status == DownloadManager.STATUS_FAILED) {
+                Toast.makeText(this, R.string.error_instalacion, Toast.LENGTH_LONG).show();
+            } else if (intentosDescarga++ < 100) {
+                esperarDescarga();
+            } else {
+                Toast.makeText(this, R.string.error_instalacion, Toast.LENGTH_LONG).show();
+            }
+        }, 1500);
+    }
+
+    private void instalarApk() {
+        File apk = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "gestion-compras.apk");
+        if (!apk.exists()) {
+            Toast.makeText(this, R.string.error_instalacion, Toast.LENGTH_LONG).show();
+            return;
+        }
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", apk);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, R.string.error_instalacion, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        actualizacionHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 }

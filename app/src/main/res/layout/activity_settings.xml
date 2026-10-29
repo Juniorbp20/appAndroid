@@ -428,12 +428,23 @@
                         android:textSize="13sp" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_check_update"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/buscar_actualizaciones"
+                        app:cornerRadius="14dp"
+                        app:icon="@drawable/ic_refresh"
+                        app:iconGravity="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_contact"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
                         android:text="@string/enviar_sugerencia"
                         app:icon="@drawable/ic_help"
                         app:iconGravity="textStart" />
